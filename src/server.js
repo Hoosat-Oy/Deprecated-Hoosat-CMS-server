@@ -70,6 +70,10 @@ app.use(cors({ origin : (origin, callback) => {
 // Import Multer route to /
 import multer from "./dependancies/Multer.js";
 app.use("/", multer.router);
+import accounts from "./routes/accounts.js"
+app.use("/api", accounts.router);
+import authentication from "./routes/authentication.js";
+app.use("/api", authentication.router);
 
 
 // Catch all routes, serve client build if it exists.
