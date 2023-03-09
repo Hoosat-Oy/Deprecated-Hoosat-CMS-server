@@ -16,7 +16,7 @@ const __dirname = path.resolve();
 // Port to listen on
 let port = process.env.PORT || 8080;
 if(port == 8080) {
-  console.log("You can change the default port with PORT in .env");
+  console.log("You can change the default port with PORT in .env\r\n");
 }
 
 // Express middleware
@@ -36,7 +36,7 @@ app.use(express.static(path.join(__dirname + '/../client/build')));
 
 // Open MongoDB connection
 if(process.env.ATLAS_URI === undefined) {
-  console.log("Could not find mongo connection uri ATLAS_URI from .env");
+  console.log("Could not find mongo connection uri ATLAS_URI from .env\r\n");
 }
 mongoose.set('strictQuery', true);
 mongoose.connect(process.env.ATLAS_URI, { 
@@ -51,12 +51,13 @@ dbOrigins = dbOrigins.map((origin) => {
 })
 
 // CORS handling
-console.log(process.env.ORIGINS);
 if(process.env.ORIGINS === undefined) {
-  console.log("Could not find ORIGINS from .env");
+  console.log("Could not find ORIGINS from .env\r\n");
 }
 let origins = ((Array.isArray(dbOrigins) && dbOrigins.length > 0) && dbOrigins) || JSON.parse(process.env.ORIGINS) || [ "http://localhost:3000" ];
+console.log("CORS allowed addresses:")
 console.log(origins);
+console.log("\r\n")
 app.use(cors({ origin : (origin, callback) => {
   if(!origin) return callback(null, true);
   if(origins.indexOf(origin) === -1) {
@@ -90,11 +91,11 @@ if(process.env.PROTOCOL === "HTTPS") {
   };
   const httpsServer = https.createServer(httpsOptions, app);
   httpsServer.listen(port, () => {
-    console.log(`Server listening on port ${port} using https.`);
+    console.log(`Server listening on port ${port} using https.\r\n`);
   });
 } else {
   const httpServer = http.createServer(app);
   httpServer.listen(port, () => {
-    console.log(`Server listening on port ${port} using http.`);
+    console.log(`Server listening on port ${port} using http.\r\n`);
   });
 }
