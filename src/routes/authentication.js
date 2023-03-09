@@ -87,17 +87,16 @@ router.post("/authentication/google", async (req, res) => {
 
 
 router.post("/authentication/confirm", async (req, res) => {
-  const { token } = req.headers.authorization;
-  if(token === undefined) {
-    res.status(500).json({ result: "error", message: "No token given." });
+  if(req.headers.authorization === undefined) {
+    return res.status(500).json({ result: "error", message: "No token given." });
   }
   try {
-    const session = await sessionsSchema.findOne({ token: token }).exec();
+    const session = await sessionsSchema.findOne({ token: req.headers.authorization }).exec();
     let account = await accountsSchema.findOne({ _id: session.account }).exec();
     account.password = "";
-    res.status(200).json({ result: "success", session: session, account: account });
+    return res.status(200).json({ result: "success", session: session, account: account });
   } catch (error) {
-    res.status(500).json({ result: "error", message: error.message });
+    return res.status(500).json({ result: "error", message: error.message });
   }
 });
 
