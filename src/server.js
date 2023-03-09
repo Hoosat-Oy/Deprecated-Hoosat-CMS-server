@@ -37,7 +37,7 @@ app.use(express.static(path.join(__dirname + '/../client/build')));
 // Open MongoDB connection
 if(process.env.ATLAS_URI === undefined) {
   console.log("Could not find mongo connection uri ATLAS_URI from .env");
-  return; 
+  process.exit(); 
 }
 mongoose.set('strictQuery', true);
 mongoose.connect(process.env.ATLAS_URI, { 
@@ -54,7 +54,7 @@ dbOrigins = dbOrigins.map((origin) => {
 // CORS handling
 if(process.env.ORIGINS === undefined) {
   console.log("Could not find ORIGINS from .env");
-  return; 
+  process.exit(); 
 }
 let origins = dbOrigins || JSON.parse(process.env.ORIGINS) || [ "http://localhost:3000" ];
 console.log(origins);
