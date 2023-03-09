@@ -15,6 +15,9 @@ const __dirname = path.resolve();
 
 // Port to listen on
 let port = process.env.PORT || 8080;
+if(port == 8080) {
+  console.log("You can change the default port with PORT in .env");
+}
 
 // Express middleware
 app.set("trust proxy", 1);
@@ -32,6 +35,10 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname + '/../client/build')));
 
 // Open MongoDB connection
+if(process.env.ATLAS_URI === undefined) {
+  console.log("Could not find mongo connection uri ATLAS_URI from .env");
+  return; 
+}
 mongoose.set('strictQuery', true);
 mongoose.connect(process.env.ATLAS_URI, { 
   useNewUrlParser: true,  
@@ -45,6 +52,10 @@ dbOrigins = dbOrigins.map((origin) => {
 })
 
 // CORS handling
+if(process.env.ORIGINS === undefined) {
+  console.log("Could not find ORIGINS from .env");
+  return; 
+}
 let origins = dbOrigins || JSON.parse(process.env.ORIGINS) || [ "http://localhost:3000" ];
 console.log(origins);
 app.use(cors({ origin : (origin, callback) => {
@@ -56,7 +67,7 @@ app.use(cors({ origin : (origin, callback) => {
   return callback(null, true);
 }, credentials: true }));
 
-// Import Google and Multer routes to /
+// Import Multer route to /
 import multer from "./dependancies/Multer.js";
 app.use("/", multer.router);
 
