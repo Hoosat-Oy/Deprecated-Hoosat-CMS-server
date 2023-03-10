@@ -321,6 +321,7 @@ router.get("/group/:id/members", async (req, res) => {
 
 export default {
   router,
+  checkGroupPermission,
   createGroup,
   updateGroup,
   getGroups,
