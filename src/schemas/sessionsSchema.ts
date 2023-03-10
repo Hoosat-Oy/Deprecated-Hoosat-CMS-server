@@ -1,4 +1,12 @@
-import mongoose from "mongoose";
+import mongoose, { Document, model, Schema } from "mongoose";
+
+export interface ISessions extends Document {
+  token: string;
+  account: mongoose.Types.ObjectId;
+  method: string;
+  createdAt: number;
+  updatedAt: number;
+}
 
 const sessionsSchema = new mongoose.Schema({
   token: {
@@ -25,4 +33,4 @@ const sessionsSchema = new mongoose.Schema({
   }
 });
 
-export default mongoose.model("Sessions", sessionsSchema);
+export default model<ISessions>("Sessions", sessionsSchema);

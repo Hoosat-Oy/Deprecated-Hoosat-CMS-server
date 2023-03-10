@@ -1,4 +1,16 @@
-import mongoose from 'mongoose';
+import mongoose, { Document, model, Schema } from 'mongoose';
+
+export interface IArticles extends Document {
+  authorId: string;
+  author: string;
+  header: string;
+  markdown: string;
+  read: number;
+  domain: string;
+  publish: string;
+  createdAt: number;
+  updatedAt: number;
+}
 
 const articlesSchema = new mongoose.Schema({
   authorId: {
@@ -38,4 +50,4 @@ const articlesSchema = new mongoose.Schema({
   }
 });
 
-export default mongoose.model("Articles", articlesSchema);
+export default model<IArticles>("Articles", articlesSchema);

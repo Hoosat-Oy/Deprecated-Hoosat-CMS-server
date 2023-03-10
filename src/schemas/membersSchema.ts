@@ -1,4 +1,12 @@
-import mongoose from 'mongoose';
+import mongoose, { Document, model, Schema } from 'mongoose';
+
+export interface IMembers extends Document {
+  group: mongoose.Types.ObjectId;
+  account: string;
+  rights: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const membersSchema = new mongoose.Schema({
   group: { 
@@ -24,4 +32,4 @@ const membersSchema = new mongoose.Schema({
   }
 });
 
-export default mongoose.model("Members", membersSchema);
+export default model<IMembers>("Members", membersSchema);
