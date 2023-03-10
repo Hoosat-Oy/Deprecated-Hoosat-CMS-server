@@ -6,7 +6,7 @@ import path from 'path';
 import cors  from "cors";
 import dotenv from "dotenv";
 import mongoose from 'mongoose';
-import { getOrigins } from "./dependancies/origins";
+import { getOrigins } from "./dependancies/Origins";
 
 // Initialization of express, dotenv and respolve path
 const app = express();
