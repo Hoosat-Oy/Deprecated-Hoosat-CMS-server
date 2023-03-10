@@ -8,7 +8,7 @@ export interface IMembers extends Document {
   updatedAt: Date;
 }
 
-const membersSchema = new mongoose.Schema({
+const membersSchema: Schema<IMembers> = new Schema({
   group: { 
     type: mongoose.Schema.Types.ObjectId,
     ref: "Groups",

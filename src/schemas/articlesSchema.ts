@@ -7,12 +7,12 @@ export interface IArticles extends Document {
   markdown: string;
   read: number;
   domain: string;
-  publish: string;
-  createdAt: number;
-  updatedAt: number;
+  publish: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const articlesSchema = new mongoose.Schema({
+const articlesSchema : Schema<IArticles> = new Schema({
   authorId: {
     type: String,
     required: true,

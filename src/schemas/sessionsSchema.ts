@@ -4,11 +4,11 @@ export interface ISessions extends Document {
   token: string;
   account: mongoose.Types.ObjectId;
   method: string;
-  createdAt: number;
-  updatedAt: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const sessionsSchema = new mongoose.Schema({
+const sessionsSchema: Schema<ISessions> = new Schema({
   token: {
     type: String,
     required: true,
@@ -27,7 +27,7 @@ const sessionsSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  updtedAt: {
+  updatedAt: {
     type: Date,
     default: Date.now
   }

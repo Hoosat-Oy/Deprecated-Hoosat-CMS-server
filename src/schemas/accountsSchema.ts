@@ -1,6 +1,6 @@
 import { Schema, model, Document } from "mongoose";
 
-export interface IAccount extends Document {
+export interface IAccounts extends Document {
   _id: any;
   email: string;
   password?: string;
@@ -17,7 +17,7 @@ export interface IAccount extends Document {
   updatedAt: Date;
 }
 
-const accountsSchema: Schema<IAccount> = new Schema({
+const accountsSchema: Schema<IAccounts> = new Schema({
   email: {
     type: String,
     required: true,
@@ -67,5 +67,5 @@ const accountsSchema: Schema<IAccount> = new Schema({
   },
 });
 
-export default model<IAccount>("Accounts", accountsSchema);
+export default model<IAccounts>("Accounts", accountsSchema);
 

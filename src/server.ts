@@ -6,7 +6,7 @@ import path from 'path';
 import cors  from "cors";
 import dotenv from "dotenv";
 import mongoose from 'mongoose';
-import { getOrigins } from "./dependancies/origins.js";
+import { getOrigins } from "./dependancies/origins";
 
 // Initialization of express, dotenv and respolve path
 const app = express();
@@ -46,10 +46,11 @@ if(process.env.ORIGINS === undefined) {
 }
 let origins: string[];
 (async () => {
-  console.log("CORS allowed addresses:");
   origins = await getOrigins();
+  console.log("CORS allowed addresses:");
   console.log(origins);
 })();
+
 app.use(cors({ origin : async (origin: any, callback: (arg0: Error | null, arg1: boolean) => any) => {
   if(!origin) return callback(null, true);
   if(origins.indexOf(origin) === -1) {
@@ -62,10 +63,14 @@ app.use(cors({ origin : async (origin: any, callback: (arg0: Error | null, arg1:
 // Import Multer route to /
 import multer from "./dependancies/Multer.js";
 app.use("/", multer.router);
+
 import authentication from "./routes/authentication.js";
 app.use("/api", authentication.router);
 import articles from "./routes/articles.js";
 app.use("/api", articles.router);
+
+import groups from "./routes/groups";
+app.use("/api", groups.router);
 
 
 // Catch all routes, serve client build if it exists.

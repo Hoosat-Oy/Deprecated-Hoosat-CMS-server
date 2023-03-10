@@ -4,7 +4,7 @@ export interface IOrigins extends Document {
   address: string;
 }
 
-const originsSchema = new mongoose.Schema({
+const originsSchema: Schema<IOrigins> = new Schema({
   address: { 
     type: String,
     required: true

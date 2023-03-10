@@ -1,15 +1,15 @@
 import mongoose, { Document, model, Schema } from 'mongoose';
 
-export interface IGroup extends Document {
+export interface IGroups extends Document {
   name: string;
   ycode: string;
   address: string;
   domains: string;
-  createdAt: number;
-  updatedAt: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const groupsSchema: Schema = new mongoose.Schema({
+const groupsSchema: Schema<IGroups> = new Schema({
   name: { 
     type: String, 
     required: true
@@ -37,5 +37,5 @@ const groupsSchema: Schema = new mongoose.Schema({
 });
 
 
-export default model<IGroup>("Groups", groupsSchema);
+export default model<IGroups>("Groups", groupsSchema);
 
