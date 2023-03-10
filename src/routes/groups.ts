@@ -264,6 +264,7 @@ router.delete("/group/:id", async (req, res) => {
         }
       }
     }
+    
   } catch (error) {
     return res.status(500).json({ result: "error", message: error });
   }

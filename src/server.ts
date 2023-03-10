@@ -11,7 +11,7 @@ import { getOrigins } from "./dependancies/origins.js";
 // Initialization of express, dotenv and respolve path
 const app = express();
 dotenv.config();
-const __dirname = path.resolve();
+const dirname = path.resolve();
 
 // Port to listen on
 let port = process.env.PORT || 8080;
@@ -31,7 +31,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static(path.join(__dirname + '/../client/build')));
+app.use(express.static(path.join(dirname + '/../client/build')));
 
 // Open MongoDB connection
 if(process.env.ATLAS_URI === undefined) {
@@ -44,9 +44,13 @@ mongoose.connect((process.env.ATLAS_URI !== undefined) ? process.env.ATLAS_URI :
 if(process.env.ORIGINS === undefined) {
   console.log("Could not find ORIGINS from .env\r\n");
 }
-console.log("CORS allowed addresses:")
+let origins: string[];
+(async () => {
+  console.log("CORS allowed addresses:");
+  origins = await getOrigins();
+  console.log(origins);
+})();
 app.use(cors({ origin : async (origin: any, callback: (arg0: Error | null, arg1: boolean) => any) => {
-  const origins = await getOrigins();
   if(!origin) return callback(null, true);
   if(origins.indexOf(origin) === -1) {
     let msg = `This site ${origin} does not have an access. Only specific domains are allowed to access it.`;
@@ -66,7 +70,7 @@ app.use("/api", articles.router);
 
 // Catch all routes, serve client build if it exists.
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname + '/../client/build/'));
+  res.sendFile(path.join(dirname + '/../client/build/'));
 });
 
 // Start listening for HTTP or HTTPS connections

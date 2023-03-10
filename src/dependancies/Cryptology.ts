@@ -1,18 +1,18 @@
 import bcrypt from "bcrypt";
 
 // Encrypt password
-const encrypt = (password) => {
+const encrypt = (password: string): string => {
   let salt = bcrypt.genSaltSync(12);
   return bcrypt.hashSync(password, salt);
 }
 
 // Compare password
-const compare = (password, hash) => {
+const compare = (password: string, hash: string): boolean => {
   return bcrypt.compareSync(password, hash);
 }
 
 // Generate random string
-const generateString = (length) => {
+const generateString = (length: number): string => {
   let result = "";
   let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i < length; i++) {
@@ -26,4 +26,3 @@ export default {
   compare,
   generateString,
 }
-

@@ -1,4 +1,4 @@
-import nodemailer, { Transporter } from "nodemailer";
+import nodemailer, { createTransport, Transporter, TransportOptions } from "nodemailer";
 
 const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
@@ -69,16 +69,15 @@ const SMTPSendMail = async (options: MailOptions): Promise<any> => {
     throw new Error(`Text is too short or long for email.`);
   }
   try {
-    let transporter: Transporter = nodemailer.createTransport({
+    let transporter = nodemailer.createTransport({
       host: process.env.SMTP_SERVER || 'mail.shellit.org',
-      port: process.env.SMTP_PORT || 587,
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
       secure: false,
       auth: {
         user: process.env.SMTP_USERNAME,
         pass: process.env.SMTP_PASSWORD,
-      }
+      },
     });
-
     let info = await transporter.sendMail(options);
     return info;
   } catch (err) { 
