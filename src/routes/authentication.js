@@ -150,7 +150,36 @@ router.get("/authentication/activate/:code", async (req, res) => {
   }
 });
 
+const confirm = async (token) => {
+  try {
+    const session = await sessionsSchema.findOne({ token: req.headers.authorization }).exec();
+    let account = await accountsSchema.findOne({ _id: session.account }).exec();
+    account.password = "";
+    return { result: "success", session: session, account: account };
+  } catch (error) {
+    if(process.env.NODE_ENV === "development") console.log(error);
+    throw new Error(error);
+  }
+}
+
+const getAccount = async (id) => {
+  try {
+    let account = await accountsSchema.findOne({ _id: id }).exec();
+    account.password = undefined;
+    account.activationCode = undefined;
+    account.source = undefined;
+    account.sourceSub = undefined;
+    if(process.env.NODE_ENV === "development") console.log(account);
+    return { result: "success", message: "Account", account: account };
+  } catch (error) {
+    if(process.env.NODE_ENV === "development") console.log(error);
+    throw new Error(error);
+  }
+}
+
 export default {
   router,
-  authenticate
+  authenticate,
+  confirm,
+  getAccount,
 }
