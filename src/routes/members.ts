@@ -1,11 +1,10 @@
 import express from 'express';
 import authentication from './authentication';
 
-import groups from './groups';
-
-import membersSchema, { IMembers } from '../schemas/membersSchema';
-import { IAccounts } from '../schemas/accountsSchema';
-import groupsSchema, { IGroups } from '../schemas/groupsSchema';
+import membersSchema, { MembersDTO } from '../lib/schemas/membersSchema';
+import { AccountsDTO } from '../lib/schemas/accountsSchema';
+import groupsSchema, { GroupsDTO } from '../lib/schemas/groupsSchema';
+import { confirmGroupPermission } from '../lib/Groups';
 
 /**
  * Members
@@ -19,16 +18,16 @@ const router = express.Router();
 /**
  * Creates a new membership for account to belong to a group.
  * @async
- * @param {IAccounts} account - The account that is added to group
- * @param {IGroups} group - The group that the account is added to.
+ * @param {AccountsDTO} account - The account that is added to group
+ * @param {GroupsDTO} group - The group that the account is added to.
  * @param {string} rights - The rights given to the member.
- * @returns {Promise<null | IMembers>} - A promise that resolves to null indicating whether the member was added or not.
+ * @returns {Promise<null | MembersDTO>} - A promise that resolves to null indicating whether the member was added or not.
  */
 const addMember = async (
-  account: IAccounts, 
-  group: IGroups,
+  account: AccountsDTO, 
+  group: GroupsDTO,
   rights: string,
-): Promise<null | IMembers> => {
+): Promise<null | MembersDTO> => {
   const foundGroup = getGroupByMember(account);
   if(foundGroup == null) {
     const member = new membersSchema({
@@ -49,16 +48,16 @@ const addMember = async (
 /**
  * Updates membership of account in a group. Most likely used for changing permissions.
  * @async
- * @param {IAccounts} account - The account whose membership is updated in group
- * @param {IGroups} group - The group that the account belongs to.
+ * @param {AccountsDTO} account - The account whose membership is updated in group
+ * @param {GroupsDTO} group - The group that the account belongs to.
  * @param {string} rights - The rights given to the member.
- * @returns {Promise<null | IMembers>} - A promise that resolves to null indicating whether the member was updated or not.
+ * @returns {Promise<null | MembersDTO>} - A promise that resolves to null indicating whether the member was updated or not.
  */
 const updateMember = async (
-  account: IAccounts,
-  group: IGroups,
+  account: AccountsDTO,
+  group: GroupsDTO,
   rights: string,
-): Promise<null | IMembers> => {
+): Promise<null | MembersDTO> => {
   const member = await membersSchema.findOneAndUpdate(
     { account: account._id, group: group._id },
     { rights: rights },
@@ -73,14 +72,14 @@ const updateMember = async (
 /**
  * Deletes a membership of account in a group.
  * @async
- * @param {IAccounts} account - The account that is deleted from group
- * @param {IGroups} group - The group that the account is deleted from.
- * @returns {Promise<null | IMembers>} - A promise that resolves to null indicating whether the member was deleted or not.
+ * @param {AccountsDTO} account - The account that is deleted from group
+ * @param {GroupsDTO} group - The group that the account is deleted from.
+ * @returns {Promise<null | MembersDTO>} - A promise that resolves to null indicating whether the member was deleted or not.
  */
 const deleteMember = async (
-  account: IAccounts,
-  group: IGroups,
-): Promise<null | IMembers> => {
+  account: AccountsDTO,
+  group: GroupsDTO,
+): Promise<null | MembersDTO> => {
   const member = await membersSchema.findOneAndDelete(
     { account: account._id, group: group._id}
   ).exec();
@@ -93,12 +92,12 @@ const deleteMember = async (
 /**
  * This function finds memberships of a group.
  * @async
- * @param {IGroups} group - The group which members are searched.
- * @returns {Promise<null | IMembers[]>} - A promise that resolves to null indicating wheter members were found or returns the members.
+ * @param {GroupsDTO} group - The group which members are searched.
+ * @returns {Promise<null | MembersDTO[]>} - A promise that resolves to null indicating wheter members were found or returns the members.
  */
 const getMembersByGroup = async (
-  group: IGroups
-): Promise<null | IMembers[]> => {
+  group: GroupsDTO
+): Promise<null | MembersDTO[]> => {
   const members = await membersSchema.find({ group: group._id }).exec();
   if(members) {
     return members;
@@ -109,13 +108,13 @@ const getMembersByGroup = async (
 /**
  * This function finds group by member.
  * @async
- * @param {IAccounts} account - The group which members are searched.
- * @returns {Promise<null | IGroups>} - A promise that resolves to null indicating wheter members were found or returns the members.
+ * @param {AccountsDTO} account - The group which members are searched.
+ * @returns {Promise<null | GroupsDTO>} - A promise that resolves to null indicating wheter members were found or returns the members.
  */
 const getGroupByMember = async (
-  account: IAccounts
-): Promise<null | IGroups> => {
-  const group = await groups.getGroupByMember(account);
+  account: AccountsDTO
+): Promise<null | GroupsDTO> => {
+  const group = await getGroupByMember(account);
   if(group) {
     return group;
   }
@@ -140,7 +139,7 @@ router.post("/member/", async (req, res) => {
     if(authorization.account !== null) {
       const group = await groupsSchema.findOne({ _id: req.body.group }).exec();
       if(group !== null && group !== undefined) {
-        let permission = await groups.checkGroupPermission("WRITE", group, authorization.account._id);
+        let {permission} = await confirmGroupPermission("WRITE", group, authorization.account);
         if(permission !== false) {
           let { account } = await authentication.getAccount(req.body.account);
           const member = addMember(account, group, req.body.rights);
@@ -181,7 +180,7 @@ router.put("/member/", async (req, res) => {
     if(authorization.account !== null) {
       const group = await groupsSchema.findOne({ _id: req.body.group }).exec();
       if(group !== null && group !== undefined) {
-        let permission = await groups.checkGroupPermission("WRITE", group, authorization.account._id);
+        let {permission} = await confirmGroupPermission("WRITE", group, authorization.account);
         if(permission !== false) {
           let { account } = await authentication.getAccount(req.body.account);
           const member = updateMember(account, group, req.body.rights);
@@ -222,7 +221,7 @@ router.delete("/member/", async (req, res) => {
     if(authorization.account !== null) {
       const group = await groupsSchema.findOne({ _id: req.body.group }).exec();
       if(group !== null && group !== undefined) {
-        let permission = await groups.checkGroupPermission("WRITE", group, authorization.account._id);
+        let {permission} = await confirmGroupPermission("WRITE", group, authorization.account);
         if(permission !== false) {
           let { account } = await authentication.getAccount(req.body.account);
           const member = deleteMember(account, group);

@@ -1,10 +1,10 @@
 import express from "express";
 
-import accountsSchema from "../schemas/accountsSchema";
-import sessionsSchema, { ISessions } from "../schemas/sessionsSchema";
+import accountsSchema from "../lib/schemas/accountsSchema";
+import sessionsSchema, { SessionsDTO } from "../lib/schemas/sessionsSchema";
 
-import Cryptology from "../dependancies/Cryptology";
-import mailer from "../dependancies/Mailer";
+import Cryptology from "../lib/common/Cryptology";
+import mailer from "../lib/common/Mailer";
 
 import { OAuth2Client } from "google-auth-library";
 
@@ -18,7 +18,7 @@ interface AuthenticateProps {
   application: string;
 }
 
-const authenticate = async (props: AuthenticateProps): Promise<ISessions> => {
+const authenticate = async (props: AuthenticateProps): Promise<SessionsDTO> => {
   const { email, password, username, application } = props;
   let account;
   let method;
@@ -188,7 +188,7 @@ const sendActivationLink = async (props: sendActivationLinkProps) => {
 router.post("/authentication/register", async (req, res) => {
   try {
     const account = await register(req.body);
-    if(account !== null && account !== undefined) {
+    if(account !== null && account !== undefined && account.email !== undefined) {
       await sendActivationLink({ email: account.email, activationCode: (account.activationCode !== undefined) ? account.activationCode : "" });
       res.status(200).json({ result: "success", message: "Account activation email has been sent.", account: account });
     } else {
@@ -236,6 +236,22 @@ const confirm = async (token: string | undefined) => {
   } else {
     throw new Error("Failed to find session with the token.");
   }
+}
+
+export const confirmToken = async (token: string | undefined) => {
+  if(token === undefined) {
+    throw new Error("Token is undefined");
+  }
+  const session = await sessionsSchema.findOne({ token: token }).exec();
+  if(session === null || session === undefined) {
+    throw new Error("Session could not be found.");
+  }
+  let account = await accountsSchema.findOne({ id: session.account }).exec();
+  if(account === null || account === undefined) {
+    throw new Error("Could not find the account for the session.");
+  }
+  account.password = "DON'T TRY TO READ THIS, REPORTED YOU RIP TO THE FEDS?"
+  return { result: "success", message: "Session token confirmed", session: session, account: account }
 }
 
 const getAccount = async (id: string) => {

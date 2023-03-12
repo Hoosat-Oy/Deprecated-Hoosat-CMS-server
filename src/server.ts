@@ -6,7 +6,7 @@ import path from 'path';
 import cors  from "cors";
 import dotenv from "dotenv";
 import mongoose from 'mongoose';
-import { getOrigins } from "./dependancies/Origins";
+import { getOrigins } from "./lib/common/Origins";
 
 // Initialization of express, dotenv and respolve path
 const app = express();
@@ -61,7 +61,7 @@ app.use(cors({ origin : async (origin: any, callback: (arg0: Error | null, arg1:
 }, credentials: true }));
 
 // Import Multer route to /
-import multer from "./dependancies/Multer";
+import multer from "./lib/common/Multer";
 app.use("/", multer.router);
 
 import authentication from "./routes/authentication";
