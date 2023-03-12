@@ -25,7 +25,7 @@ interface ArticlesResultDTO {
  * @param {ArticlesDTO} data - The article that is saved.
  * @returns {Promise<ArticlesResultDTO>} - A promise that resolves to null or the saved article indicating wheter saving the article worked or not.
  */
-const createArticle = async (
+export const createArticle = async (
   author: AccountsDTO,
   group: GroupsDTO,
   data: ArticlesDTO,
@@ -58,7 +58,7 @@ const createArticle = async (
  * @param {ArticleProps} data - The data that is to be updated.
  * @returns {Promise<ArticleResultDTO>} - A promise that resolves to null or the updated article indicating wheter updating the article worked or not.
  */
-const updateArticle = async (
+export const updateArticle = async (
   data: ArticlesDTO,
 ): Promise<ArticleResultDTO> => {
   const updatedArticle = await articlesSchema.findOneAndUpdate({ _id: data._id }, {
@@ -83,7 +83,7 @@ const updateArticle = async (
  * @param {string} id - The identifier of the article to be deleted.
  * @returns {Promise<ArticleResultDTO>} - A promise that resolves to null or the deleted article indicating wheter deleting the article worked or not.
  */
-const deleteArticle = async (
+export const deleteArticle = async (
   id: string,
 ): Promise<ArticleResultDTO> => {
   const deletedArticle = await articlesSchema.findOneAndDelete({ _id: id}).exec();
@@ -100,7 +100,7 @@ const deleteArticle = async (
  * @async
  * @returns {Promise<ArticlesResultDTO>} - A promise that resolves to null or the article.
  */
-const getPublicArticles = async (
+export const getPublicArticles = async (
 ): Promise<ArticlesResultDTO> => {
   const articles = await articlesSchema.find({ public: true }).exec();
   if(articles) {
@@ -118,7 +118,7 @@ const getPublicArticles = async (
  * @param {string} domain - The identifier of the article to be searched.
  * @returns {Promise<ArticlesResultDTO>} - A promise that resolves to null or the article.
  */
-const getPublicArticlesByDomain = async (
+export const getPublicArticlesByDomain = async (
   domain: string,
 ): Promise<ArticlesResultDTO> => {
   const articles = await articlesSchema.find({ public: true, domain: domain }).exec();
@@ -136,7 +136,7 @@ const getPublicArticlesByDomain = async (
  * @param {GroupsDTO} group - The identifier of the article to be searched.
  * @returns {Promise<ArticlesResultDTO>} - A promise that resolves to null or the article.
  */
-const getPublicArticlesByGroup = async (
+export const getPublicArticlesByGroup = async (
   group: GroupsDTO,
 ): Promise<ArticlesResultDTO> => {
   const articles = await articlesSchema.find({ public: true, group: group._id }).exec();
@@ -154,7 +154,7 @@ const getPublicArticlesByGroup = async (
  * @param {AccountsDTO} author - The identifier of the article to be searched.
  * @returns {Promise<ArticlesResultDTO>} - A promise that resolves to null or the article.
  */
-const getPublicArticlesByAuthor = async (
+export const getPublicArticlesByAuthor = async (
   author: AccountsDTO,
 ): Promise<ArticlesResultDTO> => {
   const articles = await articlesSchema.find({ public: true, author: author._id }).exec();
@@ -172,7 +172,7 @@ const getPublicArticlesByAuthor = async (
  * @param {string} id - The identifier of the article to be searched.
  * @returns {Promise<ArticleResultDTO>} - A promise that resolves to null or the article.
  */
-const getArticle = async (
+export const getArticle = async (
   id: string,
 ): Promise<ArticleResultDTO> => {
   const article = await articlesSchema.findOne({ _id: id }).exec();
@@ -190,7 +190,7 @@ const getArticle = async (
  * @param {GroupsDTO} group - The group identifier of the article to be searched.
  * @returns {Promise<ArticlesResultDTO>} - A promise that resolves to null or the article.
  */
-const getArticlesByGroup = async (
+export const getArticlesByGroup = async (
   group: GroupsDTO
 ): Promise<ArticlesResultDTO> => {
   const articles = await articlesSchema.find({ group: group._id });
@@ -208,7 +208,7 @@ const getArticlesByGroup = async (
  * @param {AccountsDTO} group - The account identifier of the article to be searched.
  * @returns {Promise<Null | ArticlesDTO>} - A promise that resolves to null or the article.
  */
-const getArticlesByAuthor = async (
+export const getArticlesByAuthor = async (
   author: AccountsDTO
 ): Promise<null | ArticlesDTO[]> => {
   const articles = await articlesSchema.find({author: author._id});
@@ -216,17 +216,4 @@ const getArticlesByAuthor = async (
     return articles;
   }
   return null;
-}
-
-export {
-  createArticle,
-  updateArticle,
-  deleteArticle,
-  getArticle,
-  getArticlesByGroup,
-  getArticlesByAuthor,
-  getPublicArticles,
-  getPublicArticlesByDomain,
-  getPublicArticlesByGroup,
-  getPublicArticlesByAuthor,
 }

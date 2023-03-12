@@ -1,15 +1,15 @@
-import { getGroupByMember } from "./Groups";
+import { getGroupByMember } from "./groups";
 import { AccountsDTO } from "./schemas/accountsSchema";
 import { GroupsDTO } from "./schemas/groupsSchema";
 import membersSchema, { MembersDTO } from "./schemas/membersSchema";
 
-interface MemberResultDTO {
+export interface MemberResultDTO {
   result: string,
   message: string,
   member: MembersDTO
 }
 
-interface MembersResultDTO {
+export interface MembersResultDTO {
   result: string,
   message: string,
   members: MembersDTO[]
@@ -24,7 +24,7 @@ interface MembersResultDTO {
  * @returns {Promise<MemberResultDTO>} A promise that resolves with the added member and a success message.
  * @throws {Error} If the member is already in a group.
  */
-const addMember = async (
+export const addMember = async (
   account: AccountsDTO, 
   group: GroupsDTO,
   rights: string,
@@ -57,7 +57,7 @@ const addMember = async (
  * @returns {Promise<MemberResultDTO>} A promise that resolves with the updated member and a success message.
  * @throws {Error} If the member could not be updated.
  */
-const updateMember = async (
+export const updateMember = async (
   account: AccountsDTO,
   group: GroupsDTO,
   rights: string,
@@ -86,7 +86,7 @@ const updateMember = async (
  * @returns {Promise<MemberResultDTO>} The member result object.
  * @throws {Error} Throws an error if the member could not be deleted.
  */
-const deleteMember = async (
+export const deleteMember = async (
   account: AccountsDTO,
   group: GroupsDTO,
 ): Promise<MemberResultDTO> => {
@@ -111,7 +111,7 @@ const deleteMember = async (
  * @returns {Promise<MembersResultDTO>} The members result object.
  * @throws {Error} Throws an error if members could not be found.
  */
-const getMembersByGroup = async (
+export const getMembersByGroup = async (
   group: GroupsDTO
 ): Promise<MembersResultDTO> => {
   const members = await membersSchema.find({ group: group._id }).exec();
@@ -123,11 +123,4 @@ const getMembersByGroup = async (
     message: "Member deleted from group",
     members: members,
   }
-}
-
-export {
-  addMember,
-  updateMember,
-  deleteMember,
-  getMembersByGroup
 }

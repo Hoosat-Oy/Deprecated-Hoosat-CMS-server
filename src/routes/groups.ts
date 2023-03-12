@@ -1,5 +1,4 @@
 import express from 'express';
-import { confirmToken } from './authentication';
 
 import { 
   confirmGroupPermission,
@@ -8,8 +7,9 @@ import {
   getGroup, 
   getGroups, 
   updateGroup
-} from '../lib/Groups';
-import { getMembersByGroup } from '../lib/Members';
+} from '../lib/groups';
+import { getMembersByGroup } from '../lib/members';
+import { confirmToken } from '../lib/sessions';
 
 /**
  * Groups
@@ -37,6 +37,7 @@ router.post("/group/", async (req, res) => {
     const { account } = await confirmToken(req.headers.authorization);
     return res.status(201).json(await createGroup(req.body.group, account));
   } catch  (error) {
+    console.log(error);
     return res.status(500).json({ result: "error", message: error });
   }
 });
@@ -62,6 +63,7 @@ router.put("/group/", async (req, res) => {
     await confirmGroupPermission("WRITE", req.body.group, account);
     return res.status(200).json(await updateGroup(req.body.group, account));
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ result: "error", message: error });
   }
 });
@@ -85,6 +87,7 @@ router.get("/groups/", async (req, res) => {
     const { account } = await confirmToken(req.headers.authorization);
     return res.status(200).json(await getGroups());
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ result: "error", message: error });
   }
 });
@@ -106,6 +109,7 @@ router.get("/group/:id", async (req, res) => {
     const { account } = await confirmToken(req.headers.authorization);
     return res.status(200).json(await getGroup(req.params.id));
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ result: "error", message: error });
   }
 });
@@ -128,6 +132,7 @@ router.delete("/group/:id", async (req, res) => {
     }    
     res.status(201).json(await deleteGroup(group, account));
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ result: "error", message: error });
   }
 });
@@ -154,6 +159,7 @@ router.get("/group/:id/members", async (req, res) => {
     }
     return res.status(200).json(await getMembersByGroup(group));
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ result: "error", message: error });
   }
 });

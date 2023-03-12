@@ -1,10 +1,9 @@
 import mongoose from 'mongoose';
 import express from 'express';
-import { confirmToken } from './authentication';
 import { 
   confirmGroupPermission, 
   confirmPermission 
-} from '../lib/Groups';
+} from '../lib/groups';
 import { 
   createArticle, 
   deleteArticle, 
@@ -13,7 +12,8 @@ import {
   getPublicArticles, 
   getPublicArticlesByDomain, 
   updateArticle 
-} from '../lib/Articles';
+} from '../lib/articles';
+import { confirmToken } from '../lib/sessions';
 
 
 const router = express.Router();

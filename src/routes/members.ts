@@ -1,8 +1,9 @@
 import express from 'express';
-import authentication, { confirmToken } from './authentication';
 
-import { confirmGroupPermission, getGroup } from '../lib/Groups';
-import { addMember, deleteMember, getMembersByGroup, updateMember } from '../lib/Members';
+import { confirmGroupPermission, getGroup } from '../lib/groups';
+import { addMember, deleteMember, getMembersByGroup, updateMember } from '../lib/members';
+import { getAccount } from '../lib/accounts';
+import { confirmToken } from '../lib/sessions';
 
 /**
  * Members
@@ -31,6 +32,7 @@ router.get("/members/", async (req, res) => {
     const { permission } = await confirmGroupPermission("WRITE", group, account);
     return res.status(200).json(await addMember(account, group, req.body.rights)); 
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ result: "error", message: error });
   }
 });
@@ -53,6 +55,7 @@ router.put("/members/", async (req, res) => {
     const { permission } = await confirmGroupPermission("WRITE", group, account);
     return res.status(200).json(await updateMember(account, group, req.body.rights));
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ result: "error", message: error });
   }
 });
@@ -74,9 +77,10 @@ router.delete("/members/", async (req, res) => {
     const { session, account } = await confirmToken(req.headers.authorization);
     const { group } = await getGroup(req.body.group._id);
     const { permission } = await confirmGroupPermission("DELETE", group, account);
-    const getAccountResult = await authentication.getAccount(req.body.account._id);
+    const getAccountResult = await getAccount(req.body.account);
     return res.status(200).json(deleteMember(getAccountResult.account, group));
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ result: "error", message: error });
   }
 });
@@ -97,6 +101,7 @@ router.get("/members/group/:id", async (req, res) => {
     const { permission } = await confirmGroupPermission("READ", group, account);
     return res.status(200).json(getMembersByGroup(group));
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ result: "error", message: error });
   }
 });

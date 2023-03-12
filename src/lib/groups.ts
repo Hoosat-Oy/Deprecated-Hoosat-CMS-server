@@ -3,7 +3,7 @@ import { AccountsDTO } from "./schemas/accountsSchema";
 import groupsSchema, { GroupsDTO } from "./schemas/groupsSchema";
 import membersSchema, { MembersDTO } from "./schemas/membersSchema";
 
-interface confirmGroupResultDTO {
+export interface confirmGroupResultDTO {
   result: string;
   message: string;
   permission: boolean;
@@ -11,14 +11,14 @@ interface confirmGroupResultDTO {
   account: AccountsDTO;
 }
 
-interface GroupResultDTO {
+export interface GroupResultDTO {
   result: string;
   message: string;
   group: GroupsDTO;
   members?: MembersDTO[];
 }
 
-interface GroupsResultDTO {
+export interface GroupsResultDTO {
   result: string;
   message: string;
   groups: GroupsDTO[];
@@ -33,7 +33,7 @@ interface GroupsResultDTO {
  * @param {AccountsDTO} member - The member to check for permission.
  * @returns {Promise<confirmGroupResultDTO>} A Promise that resolves to a boolean indicating whether the member has the permission.
  */
-const confirmGroupPermission = async (permission: string, group: GroupsDTO, member: AccountsDTO): Promise<confirmGroupResultDTO> => {
+export const confirmGroupPermission = async (permission: string, group: GroupsDTO, member: AccountsDTO): Promise<confirmGroupResultDTO> => {
   const foundMember = await membersSchema.findOne({
     group: group._id,
     account: member._id,
@@ -52,7 +52,7 @@ const confirmGroupPermission = async (permission: string, group: GroupsDTO, memb
  * @param {AccountsDTO} member - The member to add to the group.
  * @returns {Promise<GroupResultDTO>} A Promise that resolves to an GroupResultDTO representing the created group, including the added member.
  */
-const createGroup = async (
+export const createGroup = async (
   group: GroupsDTO, 
   member: AccountsDTO
 ): Promise<GroupResultDTO> => {
@@ -80,7 +80,7 @@ const createGroup = async (
  * @param {AccountsDTO} member - The member updating the group.
  * @returns {Promise<GroupResultDTO>} Returns the updated group, or null if the member does not have permission.
  */
-const updateGroup = async (
+export const updateGroup = async (
   group: GroupsDTO, 
   member: AccountsDTO
 ): Promise<GroupResultDTO> => {
@@ -100,7 +100,7 @@ const updateGroup = async (
  * Retrieves all groups from the database
  * @returns {Promise<GroupsResultDTO>} - A promise that resolves to an array of groups
  */
-const getGroups = async (): Promise<GroupsResultDTO> => {
+export const getGroups = async (): Promise<GroupsResultDTO> => {
   const groups = await groupsSchema.find({}).exec();
   if(groups === null) {
     throw new Error("Could not update group.");
@@ -117,7 +117,7 @@ const getGroups = async (): Promise<GroupsResultDTO> => {
  * @param {string} id - The id of the group to retrieve
  * @returns {Promise<GroupResultDTO>} - A promise that resolves to the group with the given id, or null if not found
  */
-const getGroup = async (id: string): Promise<GroupResultDTO> =>  {
+export const getGroup = async (id: string): Promise<GroupResultDTO> =>  {
   const group = await groupsSchema.findOne({ _id: id}).exec();
   if(group === null) {
     throw new Error("Could not update group.");
@@ -134,7 +134,7 @@ const getGroup = async (id: string): Promise<GroupResultDTO> =>  {
  * @param {AccountsDTO} account - The id of the group to retrieve
  * @returns {Promise<GroupResultDTO>} - A promise that resolves to the group with the given id, or null if not found
  */
-const getGroupByMember = async (
+export const getGroupByMember = async (
   account: AccountsDTO
 ): Promise<GroupResultDTO> =>  {
   const member = await membersSchema.findOne({ account: account._id }).exec();
@@ -158,7 +158,7 @@ const getGroupByMember = async (
  * @param {AccountsDTO} account - The authenticated account.
  * @returns {Promise<GroupResultDTO>} Returns the deleted group if successful, or null if the authenticated account does not have permission to delete the group.
  */
-const deleteGroup = async (
+export const deleteGroup = async (
   group: GroupsDTO,
   account: AccountsDTO
 ): Promise<GroupResultDTO> => {
@@ -186,7 +186,7 @@ const deleteGroup = async (
  * @returns {Promise<CheckAuthorizationAndGroupPermissionResult>} - A promise that resolves to null or the article.
  */
 
-const confirmPermission = async (
+export const confirmPermission = async (
   account: AccountsDTO,
   perm: string,
 ) => {
@@ -201,14 +201,3 @@ const confirmPermission = async (
   return { result: "success", message: "Permission was confirmed.", permission: permission, group: group }
 }
 
-
-export {
-  confirmGroupPermission,
-  confirmPermission,
-  createGroup,
-  updateGroup,
-  getGroups,
-  getGroup,
-  deleteGroup,
-  getGroupByMember
-}

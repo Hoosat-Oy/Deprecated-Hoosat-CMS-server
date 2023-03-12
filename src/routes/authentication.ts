@@ -1,99 +1,54 @@
 import express from "express";
 
-import accountsSchema from "../lib/schemas/accountsSchema";
-import sessionsSchema, { SessionsDTO } from "../lib/schemas/sessionsSchema";
-
-import Cryptology from "../lib/common/Cryptology";
-import mailer from "../lib/common/Mailer";
 
 import { OAuth2Client } from "google-auth-library";
+import { authenticate, confirmToken, googleAuthenticate } from "../lib/sessions";
+import { activateAccount, createAccount, sendActivationLink } from "../lib/accounts";
+
+/**
+ * 
+ * @route POST /authentication/register
+ * @route POST /authentication/authenticate
+ * @route POST /authentication/google
+ * @route POST /authentication/confirm
+ * @route POST /authentication/activate/:code
+ */
+
 
 const router = express.Router();
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-interface AuthenticateProps {
-  email: string;
-  password: string;
-  username: string;
-  application: string;
-}
-
-const authenticate = async (props: AuthenticateProps): Promise<SessionsDTO> => {
-  const { email, password, username, application } = props;
-  let account;
-  let method;
-  if (email !== undefined && username === undefined && application === undefined) {
-    account = await accountsSchema.findOne({ email: email, active: true }).exec();
-    method = "email";
-  } else if (email === undefined && username !== undefined && application === undefined) {
-    account = await accountsSchema.findOne({ username: username, active: true }).exec();
-    method = "username";
-  } else if (email === undefined && username === undefined && application !== undefined) {
-    account = await accountsSchema.findOne({ applications: { $in: [application] } }).exec();
-    method = "application";
-  }
-  if (!account) throw new Error("Failed to fetch account from accountsSchema with the provided information.");
-  if(account.password !== undefined) {
-    const confirmation = Cryptology.compare(password, account.password);
-    if (confirmation) {
-      const token = Cryptology.generateString(64);
-      const session = new sessionsSchema({ token: token, account: account._id,  method: method });
-      return await session.save();  
-    } else {    
-      throw new Error("Password confirmation failed, don't try with wrong password!");  
-    }  
-  } else {
-    throw new Error("Password confirmation failed, empty password!");
-  }
-};  
-
+/**
+ * Authenticate user with email and password.
+ * @route POST /authentication/authenticate
+ * @group Authentication - User authentication APIs
+ * @param {Object} req - The HTTP request Object.
+ * @param {Object} res - The HTTP response Object.
+ * @param {Object} req.body.credentials - User credentials Object.
+ * @returns {Object} User Object.
+ * @throws {Object} Error Object.
+ */
 router.post("/authentication/authenticate", async (req, res) => {
   try {
-    const session = await authenticate(req.body);
-    let account = await accountsSchema.findOne({ _id: session.account }).exec();
-    if(account !== null && account !== undefined) {
-      account.password = "";
-      return res.status(200).json({ result: "success", message: "Session created.", session: session, account: account });
-    } else {
-      return res.status(404).json({ result: "success", message: "Account not found." });
-    }
+    return res.status(200).json(await authenticate(req.body.credentials));
   } catch (error) {
     return res.status(500).json({ result: "error", message: error });
   }
 });
 
-interface GoogleAuthenticateProps {
-  sub: string,
-  email: string,
-  given_name: string,
-  family_name: string,
-}
-
-const googleAuthenticate = async (props: GoogleAuthenticateProps) => {
-  const { sub, email, given_name, family_name } = props;
-  let account = await accountsSchema.findOne({ email: email }).exec();
-  if (!account) { // create new account for google Authenticated.
-    let googler = new accountsSchema({
-      email,
-      username: given_name + " " + family_name,
-      source: "google",
-      sourceSub: sub,
-      active: true
-    });
-    account = await googler.save();
-  }
-  if (account.sourceSub === sub && account.source === "google") {
-    const token = Cryptology.generateString(64);
-    const session = new sessionsSchema({ token: token, account: account._id, method: "google" });
-    return await session.save();
-  } else {
-    throw new Error("Account is not google account!");
-  }
-}
-
+/**
+ * Authenticate user with Google OAuth token.
+ * @route POST /authentication/google
+ * @group Authentication - User authentication APIs
+ * @param {Object} req - The HTTP request Object.
+ * @param {Object} res - The HTTP response Object.
+ * @param {string} req.headers.authorization - Google OAuth token.
+ * @returns {Object} User Object.
+ * @throws {Object} Error Object.
+ */
 router.post("/authentication/google", async (req, res) => {
-  const token = req.headers.authorization;
   try {
+    const token = req.headers.authorization;
     if(process.env.GOOGLE_CLIENT_ID === undefined) {
       return res.status(400).json({ result: "errr", message: "GOOGLE authentication has not been configured."});
     }
@@ -102,114 +57,80 @@ router.post("/authentication/google", async (req, res) => {
       audience: process.env.GOOGLE_CLIENT_ID,
     });
     const payload = ticket.getPayload();
-    if(payload !== undefined) {
-      const session = await googleAuthenticate(payload as GoogleAuthenticateProps);
-      let account = await accountsSchema.findOne({ _id: session.account }).exec();
-      if(account !== null && account !== undefined) {
-        account.password = "";
-        return res.status(200).json({ result: "success", message: "Session created.", session: session, account: account });
-      } else {
-        return res.status(404).json({ result: "success", message: "Account not found." });
-      }
-    } else {
+    if(payload === undefined) {
       res.status(404).json({ result: "error", message: "Ticket payload was not found." });
     }
+    return res.status(200).json(await googleAuthenticate(payload));
   } catch (error) {
     res.status(500).json({ result: "error", message: error });
   }
 });
 
-
+/**
+ * Confirm user account with activation token.
+ * @route POST /authentication/confirm
+ * @group Authentication - User authentication APIs
+ * @param {Object} req - The HTTP request Object.
+ * @param {Object} res - The HTTP response Object.
+ * @param {string} req.headers.authorization - User activation token.
+ * @returns {Object} Confirmation result Object.
+ * @throws {Object} Error Object.
+ */
 router.post("/authentication/confirm", async (req, res) => {
   if(req.headers.authorization === undefined) {
     return res.status(500).json({ result: "error", message: "No token given." });
   }
   try {
-    const session = await sessionsSchema.findOne({ token: req.headers.authorization }).exec();
-    if(session !== null && session !== undefined) {
-      let account = await accountsSchema.findOne({ _id: session.account }).exec();
-      if(account !== null && account !== undefined) {
-        account.password = "";
-        return res.status(200).json({ result: "success", message: "Session created.", session: session, account: account });
-      } else {
-        return res.status(404).json({ result: "success", message: "Account not found." });
-      }
-    } else {
-      return res.status(401).json({ result: "error", message: ""})
-    }
+    const result = await confirmToken(req.headers.authorization);
+    return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({ result: "error", message: error });
   }
 });
 
-interface RegisterProps {
-  email: string,
-  password: string,
-  username: string,
-  fullname: string,
-  role: string,
-  applications: string,
-}
-
-const register = async (registerProps: RegisterProps) => {
-  const { email, password, username, fullname, role, applications} = registerProps;
-  const account = new accountsSchema({
-    email,
-    password: Cryptology.encrypt(password),
-    username,
-    fullname,
-    role,
-    applications,
-    activationCode: Cryptology.generateString(16),
-    active: false,
-    createdAt: Date.now(),
-    updatedAt: Date.now()
-  });
-  return await account.save();
-}
-
-interface sendActivationLinkProps {
-  email: string,
-  activationCode: string,
-}
-
-const sendActivationLink = async (props: sendActivationLinkProps) => {
-  const { email, activationCode } = props;
-  // TODO: Change registeration activation message and link!
-  let subject = "Hoosat CMS käyttäjätunnuksen aktivointi.";
-  let message = "Hei sinä,\r\n\r\n";
-  message += `Kävit rekisteröitymässä Hoosatin CMS.\r\n\r\n`;
-  message += `Voit aktivoida käyttäjätunnuksesi osoitteessa:\r\n`;
-  message += `https://hoosat.fi/activate/${activationCode}\r\n\r\n`;
-  message += "Ystävällisin terveisin,\r\n\r\nHoosat Oy";
-  await mailer.sendMail("authentication@hoosat.fi", email, subject, message);
-}
-
+/**
+ * Register a new user account and send activation email.
+ * @route POST /authentication/register
+ * @group Authentication - User authentication APIs
+ * @param {Object} req - The HTTP request Object.
+ * @param {Object} res - The HTTP response Object.
+ * @param {Object} req.body.account - New user account Object.
+ * @returns {Object} Success Object with account details.
+ * @throws {Object} Error Object.
+ */
 router.post("/authentication/register", async (req, res) => {
   try {
-    const account = await register(req.body);
-    if(account !== null && account !== undefined && account.email !== undefined) {
-      await sendActivationLink({ email: account.email, activationCode: (account.activationCode !== undefined) ? account.activationCode : "" });
-      res.status(200).json({ result: "success", message: "Account activation email has been sent.", account: account });
-    } else {
-      res.status(404).json({ result: "error", message: "Could not find just created account, so not sending activation email." });
+    const accounResult = await createAccount(req.body.account);
+    const { account } = accounResult
+    if(account.email === undefined) {
+      throw new Error("Just created account email is undefined.");
     }
+    if(account.activationCode === undefined) {
+      throw new Error("Just created account activation code is undefined.");
+    }
+    const mailResult = await sendActivationLink(account.email, account.activationCode);
+    if(mailResult === false) {
+      throw new Error("Failed to email activation link, but account was created.");
+    }
+    res.status(200).json({ result: "success", message: "Account created and activation email has been sent.", account: account });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ result: "error", message: error });
   }
 });
-
-interface ActivateProps {
-  code: string,
-}
-
-const activate = async (props: ActivateProps) => {
-  return await accountsSchema.findOneAndUpdate({ activationCode: props.code }, { active: true }).exec();
-}
-
+/**
+ * Activate user account using provided activation code
+ * @route POST /authentication/activate/:code
+ * @group Authentication
+ * @param {Object} req - The HTTP request Object.
+ * @param {Object} res - The HTTP response Object.
+ * @param {string} req.params.code - The activation code for the account to be activated
+ * @returns {Object} Success Object with account details.
+ * @throws {Object} Error Object.
+*/
 router.get("/authentication/activate/:code", async (req, res) => {
   try {
-    const account = await activate(req.params);
+    const account = await activateAccount(req.params.code);
     if(account !== null && account !== undefined) {
       res.status(200).json({ result: "success", message: "Account activated.", account: account });
     } else {
@@ -220,57 +141,6 @@ router.get("/authentication/activate/:code", async (req, res) => {
   }
 });
 
-const confirm = async (token: string | undefined) => {
-  if(token === undefined) {
-    throw new Error("Token is undefined");
-  }
-  const session = await sessionsSchema.findOne({ token: token }).exec();
-  if(session !== null && session !== undefined) {
-    let account = await accountsSchema.findOne({ _id: session.account }).exec();
-    if(account !== null && account !== undefined) {
-      account.password = "";
-      return { result: "success", session: session, account: account };
-    } else {
-      throw new Error("Failed to find account with the session.");
-    }
-  } else {
-    throw new Error("Failed to find session with the token.");
-  }
-}
-
-export const confirmToken = async (token: string | undefined) => {
-  if(token === undefined) {
-    throw new Error("Token is undefined");
-  }
-  const session = await sessionsSchema.findOne({ token: token }).exec();
-  if(session === null || session === undefined) {
-    throw new Error("Session could not be found.");
-  }
-  let account = await accountsSchema.findOne({ id: session.account }).exec();
-  if(account === null || account === undefined) {
-    throw new Error("Could not find the account for the session.");
-  }
-  account.password = "DON'T TRY TO READ THIS, REPORTED YOU RIP TO THE FEDS?"
-  return { result: "success", message: "Session token confirmed", session: session, account: account }
-}
-
-const getAccount = async (id: string) => {
-  let account = await accountsSchema.findOne({ _id: id }).exec();
-  if(account !== null && account !== undefined) {
-    account.password = undefined;
-    account.activationCode = undefined;
-    account.source = undefined;
-    account.sourceSub = undefined;
-    if(process.env.NODE_ENV === "development") console.log(account);
-    return { result: "success", account: account };
-  } else {
-    throw new Error("Could not find account with the id.");
-  }
-}
-
 export default {
   router,
-  authenticate,
-  confirm,
-  getAccount,
 }
