@@ -1,139 +1,101 @@
 import express from 'express';
-import authentication from './authentication';
+import authentication, { confirmToken } from './authentication';
 
-import groupsSchema from '../lib/schemas/groupsSchema';
-import { confirmGroupPermission } from '../lib/Groups';
-import { addMember, deleteMember, updateMember } from '../lib/Members';
+import { confirmGroupPermission, getGroup } from '../lib/Groups';
+import { addMember, deleteMember, getMembersByGroup, updateMember } from '../lib/Members';
 
 /**
  * Members
- * /member/     POST    - Add member to group
- * /member/:id  PUT     - Update member in group
- * /member/:id  DELETE  - Delete member from group
+ * /members/            POST    - Add member to group
+ * /members/:id         PUT     - Update member in group
+ * /members/group/:id   GET     - Get members in a group
+ * /members/:id         DELETE  - Delete member from group
  */
-
 const router = express.Router();
 
-
-
 /**
- * Handles HTTP POST requests for adding member to group.
- * @function
- * @async
+ * @route GET /members
+ * @description Endpoint for adding a member to a group.
  * @param {Object} req - The HTTP request object.
+ * @param {Object} req.body.group - The group to add the member to.
+ * @param {string} req.body.group._id - The ID of the group.
+ * @param {string} req.body.rights - The rights to grant to the member.
  * @param {Object} res - The HTTP response object.
- * @returns {Object} The HTTP with status code and JSON object with result, message and member properties.
+ * @returns {Object} The HTTP response with status code and JSON object with result and message properties.
  * @throws {Object} The HTTP response with status code and error message.
  */
-router.post("/member/", async (req, res) => {
+router.get("/members/", async (req, res) => {
   try {
-    const authorization = await authentication.confirm(req.headers.authorization);
-    if(authorization.result !== "success") {
-      return res.status(401).json({ result: "error", message: "Authorization failed."});
-    }
-    if(authorization.account !== null) {
-      const group = await groupsSchema.findOne({ _id: req.body.group }).exec();
-      if(group !== null && group !== undefined) {
-        let {permission} = await confirmGroupPermission("WRITE", group, authorization.account);
-        if(permission !== false) {
-          let { account } = await authentication.getAccount(req.body.account);
-          const member = addMember(account, group, req.body.rights);
-          if(member !== null && member !== undefined) {
-            return res.status(200).json({ result: "success", message: "Member added to group.", member: member });
-          } else {
-            return res.status(500).json({result: "error", message: "Failed to add member to group." });
-          }
-        } else {
-          return res.status(401).json({ result: "error", message: "No authorization to write to the members data." });
-        }
-      } else {
-        return res.status(404).json({ result: "error", message: "Group could not be found." });
-      }
-    } else {
-      return res.status(401).json({ result: "error", message: "Authorization failed." });
-    }
+    const { session, account } = await confirmToken(req.headers.authorization);
+    const { group } = await getGroup(req.body.group._id);
+    const { permission } = await confirmGroupPermission("WRITE", group, account);
+    return res.status(200).json(await addMember(account, group, req.body.rights)); 
   } catch (error) {
     return res.status(500).json({ result: "error", message: error });
   }
 });
 
 /**
- * Handles HTTP PUT requests for updating member in group.
- * @function
- * @async
+ * @route PUT /members
+ * @description Endpoint for updating the rights of a member in a group.
  * @param {Object} req - The HTTP request object.
+ * @param {Object} req.body.group - The group containing the member.
+ * @param {string} req.body.group._id - The ID of the group.
+ * @param {string} req.body.rights - The updated rights of the member.
  * @param {Object} res - The HTTP response object.
- * @returns {Object} The HTTP with status code and JSON object with result, message and member properties.
+ * @returns {Object} The HTTP response with status code and JSON object with result and message properties.
  * @throws {Object} The HTTP response with status code and error message.
  */
-router.put("/member/", async (req, res) => {
+router.put("/members/", async (req, res) => {
   try {
-    const authorization = await authentication.confirm(req.headers.authorization);
-    if(authorization.result !== "success") {
-      return res.status(401).json({ result: "error", message: "Authorization failed."});
-    }
-    if(authorization.account !== null) {
-      const group = await groupsSchema.findOne({ _id: req.body.group }).exec();
-      if(group !== null && group !== undefined) {
-        let {permission} = await confirmGroupPermission("WRITE", group, authorization.account);
-        if(permission !== false) {
-          let { account } = await authentication.getAccount(req.body.account);
-          const member = updateMember(account, group, req.body.rights);
-          if(member !== null && member !== undefined) {
-            return res.status(200).json({ result: "success", message: "Member updated in group.", member: member });
-          } else {
-            return res.status(500).json({result: "error", message: "Failed to update member in group." });
-          }
-        } else {
-          return res.status(401).json({ result: "error", message: "No authorization to write to the members data." });
-        }
-      } else {
-        return res.status(404).json({ result: "error", message: "Group could not be found." });
-      }
-    } else {
-      return res.status(401).json({ result: "error", message: "Authorization failed." });
-    }
+    const { session, account } = await confirmToken(req.headers.authorization);
+    const { group } = await getGroup(req.body.group._id);
+    const { permission } = await confirmGroupPermission("WRITE", group, account);
+    return res.status(200).json(await updateMember(account, group, req.body.rights));
   } catch (error) {
     return res.status(500).json({ result: "error", message: error });
   }
 });
 
 /**
- * Handles HTTP PUT requests for deleting member from group.
- * @function
- * @async
+ * @route DELETE /members
+ * @description Endpoint for deleting a member from a group.
  * @param {Object} req - The HTTP request object.
+ * @param {Object} req.body.group - The group containing the member.
+ * @param {string} req.body.group._id - The ID of the group.
+ * @param {string} req.body.account - The account to remove from the group.
+ * @param {string} req.body.account._id - The ID of the account to remove from the group.
  * @param {Object} res - The HTTP response object.
- * @returns {Object} The HTTP with status code and JSON object with result, message and member properties.
+ * @returns {Object} The HTTP response with status code and JSON object with result and message properties.
  * @throws {Object} The HTTP response with status code and error message.
  */
-router.delete("/member/", async (req, res) => {
+router.delete("/members/", async (req, res) => {
   try {
-    const authorization = await authentication.confirm(req.headers.authorization);
-    if(authorization.result !== "success") {
-      return res.status(401).json({ result: "error", message: "Authorization failed."});
-    }
-    if(authorization.account !== null) {
-      const group = await groupsSchema.findOne({ _id: req.body.group }).exec();
-      if(group !== null && group !== undefined) {
-        let {permission} = await confirmGroupPermission("WRITE", group, authorization.account);
-        if(permission !== false) {
-          let { account } = await authentication.getAccount(req.body.account);
-          const member = deleteMember(account, group);
-          if(member !== null && member !== undefined) {
-            return res.status(200).json({ result: "success", message: "Member deleted from group.", member: member });
-          } else {
-            return res.status(500).json({result: "error", message: "Failed to deleted member from group." });
-          }
-        } else {
-          return res.status(401).json({ result: "error", message: "No authorization to write to the members data." });
-        }
-      } else {
-        return res.status(404).json({ result: "error", message: "Group could not be found." });
-      }
-    } else {
-      return res.status(401).json({ result: "error", message: "Authorization failed." });
-    }
+    const { session, account } = await confirmToken(req.headers.authorization);
+    const { group } = await getGroup(req.body.group._id);
+    const { permission } = await confirmGroupPermission("DELETE", group, account);
+    const getAccountResult = await authentication.getAccount(req.body.account._id);
+    return res.status(200).json(deleteMember(getAccountResult.account, group));
+  } catch (error) {
+    return res.status(500).json({ result: "error", message: error });
+  }
+});
+
+/**
+ * Get all members of a group
+ * @function
+ * @async
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} - Returns JSON object with members data
+ * @throws {Error} - If an error occurs during the process
+ */
+router.get("/members/group/:id", async (req, res) => {
+  try {
+    const { session, account } = await confirmToken(req.headers.authorization);
+    const { group } = await getGroup(req.params.id);
+    const { permission } = await confirmGroupPermission("READ", group, account);
+    return res.status(200).json(getMembersByGroup(group));
   } catch (error) {
     return res.status(500).json({ result: "error", message: error });
   }
