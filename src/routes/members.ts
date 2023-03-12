@@ -1,10 +1,9 @@
 import express from 'express';
 import authentication from './authentication';
 
-import membersSchema, { MembersDTO } from '../lib/schemas/membersSchema';
-import { AccountsDTO } from '../lib/schemas/accountsSchema';
-import groupsSchema, { GroupsDTO } from '../lib/schemas/groupsSchema';
+import groupsSchema from '../lib/schemas/groupsSchema';
 import { confirmGroupPermission } from '../lib/Groups';
+import { addMember, deleteMember, updateMember } from '../lib/Members';
 
 /**
  * Members
@@ -15,111 +14,7 @@ import { confirmGroupPermission } from '../lib/Groups';
 
 const router = express.Router();
 
-/**
- * Creates a new membership for account to belong to a group.
- * @async
- * @param {AccountsDTO} account - The account that is added to group
- * @param {GroupsDTO} group - The group that the account is added to.
- * @param {string} rights - The rights given to the member.
- * @returns {Promise<null | MembersDTO>} - A promise that resolves to null indicating whether the member was added or not.
- */
-const addMember = async (
-  account: AccountsDTO, 
-  group: GroupsDTO,
-  rights: string,
-): Promise<null | MembersDTO> => {
-  const foundGroup = getGroupByMember(account);
-  if(foundGroup == null) {
-    const member = new membersSchema({
-      group: group._id,
-      account: account._id,
-      rights: rights,
-      createdAt: Date.now(),
-      updatedAt: Date.now()
-    });
-    const savedMember = await member.save();
-    if(savedMember) {
-      return savedMember;
-    }
-  }
-  return null;
-};
 
-/**
- * Updates membership of account in a group. Most likely used for changing permissions.
- * @async
- * @param {AccountsDTO} account - The account whose membership is updated in group
- * @param {GroupsDTO} group - The group that the account belongs to.
- * @param {string} rights - The rights given to the member.
- * @returns {Promise<null | MembersDTO>} - A promise that resolves to null indicating whether the member was updated or not.
- */
-const updateMember = async (
-  account: AccountsDTO,
-  group: GroupsDTO,
-  rights: string,
-): Promise<null | MembersDTO> => {
-  const member = await membersSchema.findOneAndUpdate(
-    { account: account._id, group: group._id },
-    { rights: rights },
-    { new: true }
-  ).exec();
-  if(member) {
-    return member;
-  }
-  return null;
-}
-
-/**
- * Deletes a membership of account in a group.
- * @async
- * @param {AccountsDTO} account - The account that is deleted from group
- * @param {GroupsDTO} group - The group that the account is deleted from.
- * @returns {Promise<null | MembersDTO>} - A promise that resolves to null indicating whether the member was deleted or not.
- */
-const deleteMember = async (
-  account: AccountsDTO,
-  group: GroupsDTO,
-): Promise<null | MembersDTO> => {
-  const member = await membersSchema.findOneAndDelete(
-    { account: account._id, group: group._id}
-  ).exec();
-  if(member) {
-    return member;
-  }
-  return null;
-}
-
-/**
- * This function finds memberships of a group.
- * @async
- * @param {GroupsDTO} group - The group which members are searched.
- * @returns {Promise<null | MembersDTO[]>} - A promise that resolves to null indicating wheter members were found or returns the members.
- */
-const getMembersByGroup = async (
-  group: GroupsDTO
-): Promise<null | MembersDTO[]> => {
-  const members = await membersSchema.find({ group: group._id }).exec();
-  if(members) {
-    return members;
-  }
-  return null;
-}
-
-/**
- * This function finds group by member.
- * @async
- * @param {AccountsDTO} account - The group which members are searched.
- * @returns {Promise<null | GroupsDTO>} - A promise that resolves to null indicating wheter members were found or returns the members.
- */
-const getGroupByMember = async (
-  account: AccountsDTO
-): Promise<null | GroupsDTO> => {
-  const group = await getGroupByMember(account);
-  if(group) {
-    return group;
-  }
-  return null;
-}
 
 /**
  * Handles HTTP POST requests for adding member to group.
@@ -246,9 +141,5 @@ router.delete("/member/", async (req, res) => {
 
 export default {
   router,
-  addMember,
-  updateMember,
-  deleteMember,
-  getMembersByGroup
 }
 

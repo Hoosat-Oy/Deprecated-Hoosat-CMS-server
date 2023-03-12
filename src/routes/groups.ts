@@ -1,18 +1,15 @@
 import express from 'express';
-import authentication, { confirmToken } from './authentication';
+import { confirmToken } from './authentication';
 
-import Members from './members';
-
-import groupsSchema from '../lib/schemas/groupsSchema';
 import { 
-  confirmGroupPermission, 
-  confirmPermission, 
+  confirmGroupPermission,
   createGroup, 
   deleteGroup, 
   getGroup, 
   getGroups, 
   updateGroup
 } from '../lib/Groups';
+import { getMembersByGroup } from '../lib/Members';
 
 /**
  * Groups
@@ -147,7 +144,7 @@ router.delete("/group/:id", async (req, res) => {
 router.get("/group/:id/members", async (req, res) => {
   try {
     const { account } = await confirmToken(req.headers.authorization);
-    const group = await groupsSchema.findOne({ _id: req.params.id }).exec();
+    const { group } = await getGroup(req.params.id);
     if(group === null) {
       throw new Error("Could not find group with the ID.");
     }
@@ -155,7 +152,7 @@ router.get("/group/:id/members", async (req, res) => {
     if(permission === false) {
       throw new Error("Could not confirm permission");
     }
-    return res.status(200).json(await Members.getMembersByGroup(group));
+    return res.status(200).json(await getMembersByGroup(group));
   } catch (error) {
     return res.status(500).json({ result: "error", message: error });
   }
