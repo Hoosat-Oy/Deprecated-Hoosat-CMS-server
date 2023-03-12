@@ -61,16 +61,20 @@ app.use(cors({ origin : async (origin: any, callback: (arg0: Error | null, arg1:
 }, credentials: true }));
 
 // Import Multer route to /
-import multer from "./dependancies/Multer.js";
+import multer from "./dependancies/Multer";
 app.use("/", multer.router);
 
-import authentication from "./routes/authentication.js";
+import authentication from "./routes/authentication";
 app.use("/api", authentication.router);
-import articles from "./routes/articles.js";
-app.use("/api", articles.router);
 
 import groups from "./routes/groups";
 app.use("/api", groups.router);
+
+import members from "./routes/members";
+app.use("/api", members.router);
+
+import articles from "./routes/articles";
+app.use("/api", articles.router);
 
 
 // Catch all routes, serve client build if it exists.

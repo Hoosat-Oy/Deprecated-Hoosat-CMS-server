@@ -29,16 +29,19 @@ const addMember = async (
   group: IGroups,
   rights: string,
 ): Promise<null | IMembers> => {
-  const member = new membersSchema({
-    group: group._id,
-    account: account._id,
-    rights: rights,
-    createdAt: Date.now(),
-    updatedAt: Date.now()
-  });
-  const savedMember = await member.save();
-  if(savedMember) {
-    return savedMember;
+  const foundGroup = getGroupByMember(account);
+  if(foundGroup == null) {
+    const member = new membersSchema({
+      group: group._id,
+      account: account._id,
+      rights: rights,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    });
+    const savedMember = await member.save();
+    if(savedMember) {
+      return savedMember;
+    }
   }
   return null;
 };
@@ -99,6 +102,22 @@ const getMembersByGroup = async (
   const members = await membersSchema.find({ group: group._id }).exec();
   if(members) {
     return members;
+  }
+  return null;
+}
+
+/**
+ * This function finds group by member.
+ * @async
+ * @param {IAccounts} account - The group which members are searched.
+ * @returns {Promise<null | IGroups>} - A promise that resolves to null indicating wheter members were found or returns the members.
+ */
+const getGroupByMember = async (
+  account: IAccounts
+): Promise<null | IGroups> => {
+  const group = await groups.getGroupByMember(account);
+  if(group) {
+    return group;
   }
   return null;
 }

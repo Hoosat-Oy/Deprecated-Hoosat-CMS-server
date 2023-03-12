@@ -1,8 +1,8 @@
 import mongoose, { Document, model, Schema } from 'mongoose';
 
 export interface IArticles extends Document {
-  authorId: string;
-  author: string;
+  group: mongoose.Types.ObjectId;
+  author: mongoose.Types.ObjectId;
   header: string;
   markdown: string;
   read: number;
@@ -13,12 +13,12 @@ export interface IArticles extends Document {
 }
 
 const articlesSchema : Schema<IArticles> = new Schema({
-  authorId: {
-    type: String,
+  group: {
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
   author: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
   header: {

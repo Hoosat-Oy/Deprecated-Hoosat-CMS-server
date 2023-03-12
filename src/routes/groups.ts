@@ -170,6 +170,24 @@ const getGroup = async (id: string): Promise<IGroups | null> =>  {
 }
 
 /**
+ * Retrieves a single group with the given account membership from the database
+ * @param {IAccounts} account - The id of the group to retrieve
+ * @returns {Promise<IGroups | null>} - A promise that resolves to the group with the given id, or null if not found
+ */
+const getGroupByMember = async (
+  account: IAccounts
+): Promise<IGroups | null> =>  {
+  const member = await membersSchema.findOne({ account: account._id }).exec();
+  if(member) {
+    const group = await groupsSchema.findOne({ _id: member.group }).exec();
+    if(group) {
+      return group;
+    }
+  }
+  return null;
+}
+
+/**
  * Retrieves all groups.
  *
  * @async
@@ -319,13 +337,57 @@ router.get("/group/:id/members", async (req, res) => {
   }
 });
 
+/**
+ * Get account and group and do checking if authorization and group permissions are what they are required to be.
+ * @function
+ * @async
+ * @param {string | undefined} token - The session token of the account.
+ * @param {stirng} permission - The permission required for the account in the group.
+ * @returns {Promise<CheckAuthorizationAndGroupPermissionResult>} - A promise that resolves to null or the article.
+ */
+
+interface CheckAuthorizationAndGroupPermissionResult {
+  account: IAccounts,
+  group: IGroups,
+}
+
+const checkAuthorizationAndGroupPermission = async (
+  token: string | undefined,
+  permission: string,
+): Promise<CheckAuthorizationAndGroupPermissionResult> => {
+  if(token === undefined) {
+    throw new Error("Token is invalid.")
+  }
+  const Authorization = await authentication.confirm(token);
+  if(Authorization.result !== "success") {
+    throw new Error("Authorization failed.");
+  }
+  if(Authorization.account === null) {
+    throw new Error("Could not find account.");
+  }
+  const group = await getGroupByMember(Authorization.account);
+  if(group === null) {
+    throw new Error("Could not find group.");
+  }
+  const permResult = await checkGroupPermission(permission, group, Authorization.account);
+  if(permResult === false) {
+    throw new Error(`No ${permission} for the account in the group.`);
+  }
+  return { 
+    account: Authorization.account, 
+    group: group,
+  }
+}
+
 export default {
   router,
   checkGroupPermission,
+  checkAuthorizationAndGroupPermission,
   createGroup,
   updateGroup,
   getGroups,
   getGroup,
   deleteGroup,
+  getGroupByMember
 }
 
