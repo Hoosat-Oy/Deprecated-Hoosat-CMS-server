@@ -2,7 +2,6 @@ import fs from "fs";
 import http from "http";
 import https from "https";
 import express from "express";
-import path from 'path';
 import cors  from "cors";
 import dotenv from "dotenv";
 import mongoose from 'mongoose';
@@ -11,7 +10,6 @@ import { getOrigins } from "./lib/common/Origins";
 // Initialization of express, dotenv and respolve path
 const app = express();
 dotenv.config();
-const dirname = path.resolve();
 
 // Port to listen on
 let port = process.env.PORT || 8080;
@@ -30,8 +28,6 @@ app.use((req, res, next) => {
   build = req.headers.hostname;
   next();
 });
-
-app.use(express.static(path.join(dirname + '/../client/build')));
 
 // Open MongoDB connection
 if(process.env.ATLAS_URI === undefined) {
@@ -60,27 +56,10 @@ app.use(cors({ origin : async (origin: any, callback: (arg0: Error | null, arg1:
   return callback(null, true);
 }, credentials: true }));
 
-// Import Multer route to /
-import multer from "./lib/common/Multer";
-app.use("/", multer.router);
 
-import authentication from "./routes/authentication";
-app.use("/api", authentication.router);
+import { EnableRoutes } from "./routes/";
+EnableRoutes(app);
 
-import groups from "./routes/groups";
-app.use("/api", groups.router);
-
-import members from "./routes/members";
-app.use("/api", members.router);
-
-import articles from "./routes/articles";
-app.use("/api", articles.router);
-
-
-// Catch all routes, serve client build if it exists.
-app.get('*', (req, res) => {
-  res.sendFile(path.join(dirname + '/../client/build/'));
-});
 
 // Start listening for HTTP or HTTPS connections
 // depending on the configuration.

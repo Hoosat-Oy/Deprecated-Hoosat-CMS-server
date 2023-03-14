@@ -48,7 +48,7 @@ const sendMail = async (from: string, to: string, subject: string, text: string)
     },
   });
   try {
-    let info = await transporter.sendMail(options);
+    let info = transporter.sendMail(options);
     return info;
   } catch (error) {
     throw new Error("Failed to send email.");

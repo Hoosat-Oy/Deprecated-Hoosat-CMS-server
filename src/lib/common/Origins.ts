@@ -7,7 +7,6 @@ const getOrigins = async (): Promise<string[]> => {
     return (origin.address !== undefined) ? origin.address : "";
   });
   const envOrigins: string[] | undefined = process.env.ORIGINS?.split(",");
-  
   if(dbOrigins.length > 0) {
     return dbOrigins;
   } else if(envOrigins !== undefined && envOrigins.length > 0) {
