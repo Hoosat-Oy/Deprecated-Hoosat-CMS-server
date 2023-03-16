@@ -33,7 +33,11 @@ router.get("/members/", async (req, res) => {
     return res.status(200).json(await addMember(account, group, req.body.rights)); 
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ result: "error", message: error });
+    if (typeof error === "object" && error !== null) {
+      return res.status(500).json({ result: "error", message: error.toString() });
+    } else {
+      return res.status(500).json({ result: "error", message: "Unknown error" });
+    }
   }
 });
 
@@ -56,7 +60,11 @@ router.put("/members/", async (req, res) => {
     return res.status(200).json(await updateMember(account, group, req.body.rights));
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ result: "error", message: error });
+    if (typeof error === "object" && error !== null) {
+      return res.status(500).json({ result: "error", message: error.toString() });
+    } else {
+      return res.status(500).json({ result: "error", message: "Unknown error" });
+    }
   }
 });
 
@@ -81,7 +89,11 @@ router.delete("/members/", async (req, res) => {
     return res.status(200).json(deleteMember(getAccountResult.account, group));
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ result: "error", message: error });
+    if (typeof error === "object" && error !== null) {
+      return res.status(500).json({ result: "error", message: error.toString() });
+    } else {
+      return res.status(500).json({ result: "error", message: "Unknown error" });
+    }
   }
 });
 
@@ -102,7 +114,11 @@ router.get("/members/group/:id", async (req, res) => {
     return res.status(200).json(getMembersByGroup(group));
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ result: "error", message: error });
+    if (typeof error === "object" && error !== null) {
+      return res.status(500).json({ result: "error", message: error.toString() });
+    } else {
+      return res.status(500).json({ result: "error", message: "Unknown error" });
+    }
   }
 });
 

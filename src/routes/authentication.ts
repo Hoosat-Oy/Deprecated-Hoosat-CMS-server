@@ -32,7 +32,12 @@ router.post("/authentication/authenticate", async (req, res) => {
   try {
     return res.status(200).json(await authenticate(req.body.credentials));
   } catch (error) {
-    return res.status(500).json({ result: "error", message: error });
+    console.log(error);
+    if (typeof error === "object" && error !== null) {
+      return res.status(500).json({ result: "error", message: error.toString() });
+    } else {
+      return res.status(500).json({ result: "error", message: "Unknown error" });
+    }
   }
 });
 
@@ -62,7 +67,12 @@ router.post("/authentication/google", async (req, res) => {
     }
     return res.status(200).json(await googleAuthenticate(payload));
   } catch (error) {
-    res.status(500).json({ result: "error", message: error });
+    console.log(error);
+    if (typeof error === "object" && error !== null) {
+      return res.status(500).json({ result: "error", message: error.toString() });
+    } else {
+      return res.status(500).json({ result: "error", message: "Unknown error" });
+    }
   }
 });
 
@@ -84,7 +94,12 @@ router.post("/authentication/confirm", async (req, res) => {
     const result = await confirmToken(req.headers.authorization);
     return res.status(200).json(result);
   } catch (error) {
-    return res.status(500).json({ result: "error", message: error });
+    console.log(error);
+    if (typeof error === "object" && error !== null) {
+      return res.status(500).json({ result: "error", message: error.toString() });
+    } else {
+      return res.status(500).json({ result: "error", message: "Unknown error" });
+    }
   }
 });
 
@@ -115,7 +130,12 @@ router.post("/authentication/register", async (req, res) => {
     res.status(200).json({ result: "success", message: "Account created and activation email has been sent.", account: account });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ result: "error", message: error });
+    console.log(error);
+    if (typeof error === "object" && error !== null) {
+      return res.status(500).json({ result: "error", message: error.toString() });
+    } else {
+      return res.status(500).json({ result: "error", message: "Unknown error" });
+    }
   }
 });
 /**
@@ -137,7 +157,12 @@ router.get("/authentication/activate/:code", async (req, res) => {
       res.status(404).json({ result: "error", message: "Could not activate account with the code." });
     }
   } catch (error) {
-    res.status(500).json({ result: "error", message: error });
+    console.log(error);
+    if (typeof error === "object" && error !== null) {
+      return res.status(500).json({ result: "error", message: error.toString() });
+    } else {
+      return res.status(500).json({ result: "error", message: "Unknown error" });
+    }
   }
 });
 

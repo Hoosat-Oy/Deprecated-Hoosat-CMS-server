@@ -38,7 +38,11 @@ router.post("/group/", async (req, res) => {
     return res.status(201).json(await createGroup(req.body.group, account));
   } catch  (error) {
     console.log(error);
-    return res.status(500).json({ result: "error", message: error });
+    if (typeof error === "object" && error !== null) {
+      return res.status(500).json({ result: "error", message: error.toString() });
+    } else {
+      return res.status(500).json({ result: "error", message: "Unknown error" });
+    }
   }
 });
 
@@ -64,7 +68,11 @@ router.put("/group/", async (req, res) => {
     return res.status(200).json(await updateGroup(req.body.group, account));
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ result: "error", message: error });
+    if (typeof error === "object" && error !== null) {
+      return res.status(500).json({ result: "error", message: error.toString() });
+    } else {
+      return res.status(500).json({ result: "error", message: "Unknown error" });
+    }
   }
 });
 
@@ -88,7 +96,11 @@ router.get("/groups/", async (req, res) => {
     return res.status(200).json(await getGroups());
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ result: "error", message: error });
+    if (typeof error === "object" && error !== null) {
+      return res.status(500).json({ result: "error", message: error.toString() });
+    } else {
+      return res.status(500).json({ result: "error", message: "Unknown error" });
+    }
   }
 });
 
@@ -133,7 +145,11 @@ router.delete("/group/:id", async (req, res) => {
     res.status(201).json(await deleteGroup(group, account));
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ result: "error", message: error });
+    if (typeof error === "object" && error !== null) {
+      return res.status(500).json({ result: "error", message: error.toString() });
+    } else {
+      return res.status(500).json({ result: "error", message: "Unknown error" });
+    }
   }
 });
 
@@ -160,7 +176,11 @@ router.get("/group/:id/members", async (req, res) => {
     return res.status(200).json(await getMembersByGroup(group));
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ result: "error", message: error });
+    if (typeof error === "object" && error !== null) {
+      return res.status(500).json({ result: "error", message: error.toString() });
+    } else {
+      return res.status(500).json({ result: "error", message: "Unknown error" });
+    }
   }
 });
 
