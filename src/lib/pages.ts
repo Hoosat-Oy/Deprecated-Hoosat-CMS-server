@@ -108,9 +108,25 @@ export const deletePage = async (id: string): Promise<PageResultDTO> => {
 export const getPage = async (id: string): Promise<PageResultDTO> => {
   const page = await pagesSchema.findOne({ _id: id }).exec();
   if (page) {
-    return { result: "success", message: "Page has been deleted.", page: page };
+    return { result: "success", message: "Page has been found.", page: page };
   } else {
-    throw new Error("Could not delete page.");
+    throw new Error("Could not find page.");
+  }
+};
+
+/**
+ * Delete page.
+ * @function
+ * @async
+ * @param {string} link - The identifier of the page to be deleted.
+ * @returns {Promise<PageResultDTO>} - A promise that resolves to PageResultDTO
+ */
+export const getPageByLink = async (link: string): Promise<PageResultDTO> => {
+  const page = await pagesSchema.findOne({ link: `/${link}` }).exec();
+  if (page) {
+    return { result: "success", message: "Page has been found.", page: page };
+  } else {
+    throw new Error("Could not find page.");
   }
 };
 

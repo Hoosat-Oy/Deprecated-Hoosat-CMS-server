@@ -26,7 +26,7 @@
 
 import express from "express";
 import { confirmPermission, getGroup } from "../lib/groups";
-import { createPage, deletePage, getPage, getPagesByDomain, updatePage } from "../lib/pages";
+import { createPage, deletePage, getPage, getPageByLink, getPagesByDomain, updatePage } from "../lib/pages";
 import { confirmToken } from "../lib/sessions";
 
 
@@ -124,6 +124,30 @@ router.delete("/pages/:id", async (req, res) => {
 router.get("/pages/:id", async (req, res) => {
   try {
     return res.status(200).json(await getPage(req.params.id));
+  } catch (error) {
+    console.log(error);
+    if (typeof error === "object" && error !== null) {
+      return res.status(500).json({ result: "error", message: error.toString() });
+    } else {
+      return res.status(500).json({ result: "error", message: "Unknown error" });
+    }
+  }
+});
+
+/**
+ * Handles HTTP Get requests for getting page by id.
+ * @function
+ * @async
+ * @param {object} req - The HTTP rquest object.
+ * @param {string} req.params.id - The id of the page to get.
+ * @param {object} res - The HTTP response object.
+ * @returns {Object} The HTTP with status code and JSON object with result, message and article properties.
+ * @throws {Object} The HTTP response with status code and error message.
+ */
+router.get("/pages/link/:link", async (req, res) => {
+  try {
+    console.log(req.params.link);
+    return res.status(200).json(await getPageByLink(req.params.link));
   } catch (error) {
     console.log(error);
     if (typeof error === "object" && error !== null) {
