@@ -1,11 +1,16 @@
 import mongoose, { Document, model, Schema } from 'mongoose';
 
 export interface PagesDTO  {
+  _id: mongoose.Types.ObjectId;
+  group: mongoose.Types.ObjectId;
+  author: mongoose.Types.ObjectId;
   name?: string;
   link?: string;
   markdown?: string;
-  createdAt: Date,
-  updatedAt: Date,
+  icon?: string;
+  domain?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 interface PagesDBO extends PagesDTO, Document {
@@ -13,15 +18,33 @@ interface PagesDBO extends PagesDTO, Document {
 }
 
 const originsSchema: Schema<PagesDBO> = new Schema({
+  group: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
+  author: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
   name: { 
     type: String,
+    unique: true,
     required: true
   },
   link: {
     type: String,
+    unique: true,
     required: true,
   },
   markdown: {
+    type: String,
+    required: false,
+  },
+  icon: {
+    type: String,
+    required: false,
+  },
+  domain: {
     type: String,
     required: false,
   },
