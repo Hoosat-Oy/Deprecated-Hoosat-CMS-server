@@ -7,6 +7,7 @@ import authentication from "./authentication";
 import groups from "./groups";
 import members from "./members";
 import articles from "./articles";
+import pages from './pages';
 
 export const EnableRoutes = (app: {
   get(arg0: string, arg1: (req: any, res: any) => void): unknown; 
@@ -19,19 +20,23 @@ export const EnableRoutes = (app: {
   }
   if(process.env.AUTHENTICATION_ENABLED === "true") {
     app.use("/api", authentication.router);
-    console.log(`AUTHENTICATION_ENABLEDAUTHENTICATION_ENABLED == ${process.env.AUTHENTICATION_ENABLEDAUTHENTICATION_ENABLED}`);
+    console.log(`AUTHENTICATION_ENABLED == ${process.env.AUTHENTICATION_ENABLED}`);
   }
   if(process.env.GROUPS_ENABLED === "true") {
     app.use("/api", groups.router);
-    console.log(`AUTHENTICATION_ENABLED == ${process.env.AUTHENTICATION_ENABLED}`);
+    console.log(`GROUPS_ENABLED == ${process.env.GROUPS_ENABLED}`);
   } 
   if(process.env.MEMBERS_ENABLED === "true") {
     app.use("/api", members.router);
-    console.log(`AUTHENTICATION_ENABLED == ${process.env.AUTHENTICATION_ENABLED}`);
+    console.log(`MEMBERS_ENABLED == ${process.env.MEMBERS_ENABLED}`);
   } 
   if(process.env.ARTICLES_ENABLED == "true") {
     app.use("/api", articles.router);
-    console.log(`AUTHENTICATION_ENABLED == ${process.env.AUTHENTICATION_ENABLED}`);
+    console.log(`ARTICLES_ENABLED == ${process.env.ARTICLES_ENABLED}`);
+  }
+  if(process.env.PAGES_ENABLED == "true") {
+    app.use("/api", pages.router);
+    console.log(`PAGES_ENABLED == ${process.env.PAGES_ENABLED}`);
   }
     // Catch all other routes, serve client build if it exists.
   app.get('*', (req, res) => {

@@ -17,7 +17,7 @@ interface PagesDBO extends PagesDTO, Document {
   _id: mongoose.Types.ObjectId;
 }
 
-const originsSchema: Schema<PagesDBO> = new Schema({
+const pagesSchema: Schema<PagesDBO> = new Schema({
   group: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -58,4 +58,4 @@ const originsSchema: Schema<PagesDBO> = new Schema({
   }
 });
 
-export default model<PagesDBO>("Origins", originsSchema);
+export default model<PagesDBO>("Pages", pagesSchema);
