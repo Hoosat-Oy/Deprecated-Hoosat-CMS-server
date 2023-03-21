@@ -106,6 +106,7 @@ export const deletePage = async (id: string): Promise<PageResultDTO> => {
  * @returns {Promise<PageResultDTO>} - A promise that resolves to PageResultDTO
  */
 export const getPage = async (id: string): Promise<PageResultDTO> => {
+  console.log("id: ", id);
   const page = await pagesSchema.findOne({ _id: id }).exec();
   if (page) {
     return { result: "success", message: "Page has been found.", page: page };
@@ -115,13 +116,14 @@ export const getPage = async (id: string): Promise<PageResultDTO> => {
 };
 
 /**
- * Delete page.
+ * Get page by link. 
  * @function
  * @async
- * @param {string} link - The identifier of the page to be deleted.
+ * @param {string} link - The identifier of the page to be get.
  * @returns {Promise<PageResultDTO>} - A promise that resolves to PageResultDTO
  */
 export const getPageByLink = async (link: string): Promise<PageResultDTO> => {
+  console.log("link: " + link);
   const page = await pagesSchema.findOne({ link: `/${link}` }).exec();
   if (page) {
     return { result: "success", message: "Page has been found.", page: page };
