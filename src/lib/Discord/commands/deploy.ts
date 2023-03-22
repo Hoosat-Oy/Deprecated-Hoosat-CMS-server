@@ -1,6 +1,5 @@
 import { REST, RESTPostAPIChatInputApplicationCommandsJSONBody, Routes } from 'discord.js';
 
-
 const token = process.env.DISCORD_BOT_TOKEN;
 const clientId = process.env.DISCORD_APPLICATION_ID;
 const guildId = process.env.DISCORD_SERVER_ID;

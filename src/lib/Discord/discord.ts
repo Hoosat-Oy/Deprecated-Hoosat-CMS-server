@@ -9,11 +9,24 @@ interface command {
 }
 const commands: command[] = [];
   
-// import your commands.
+// Import your commands. 
+// Push your command data as json to deployable commands.
+// Push your command name and execute to commands.
 import ping from './commands/ping';
-// push your command data as json to deployable commands. 
 deployable.push(ping.builder.toJSON());
-commands.push({name: ping.builder.name, execute: ping.execute})
+commands.push({name: ping.builder.name, execute: ping.execute});
+
+import avatar from './commands/avatar';
+deployable.push(avatar.builder.toJSON());
+commands.push({name: avatar.builder.name, execute: avatar.execute});
+
+import server from './commands/server';
+deployable.push(server.builder.toJSON());
+commands.push({name: server.builder.name, execute: server.execute});
+
+import fkick from './commands/fkick';
+deployable.push(fkick.builder.toJSON());
+commands.push({name: fkick.builder.name, execute: fkick.execute});
 
 
 export const loginDiscord = (): Client | boolean => {
