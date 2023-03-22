@@ -60,6 +60,10 @@ app.use(cors({ origin : async (origin: any, callback: (arg0: Error | null, arg1:
 import { EnableRoutes } from "./routes/";
 EnableRoutes(app);
 
+import { loginDiscord } from "./lib/Discord/discord";
+if(process.env.DISCORD_ENABLED === "true") {
+  const client = loginDiscord();
+}
 
 // Start listening for HTTP or HTTPS connections
 // depending on the configuration.
