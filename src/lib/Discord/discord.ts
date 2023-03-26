@@ -16,6 +16,15 @@ import ping from './commands/ping';
 deployable.push(ping.builder.toJSON());
 commands.push({name: ping.builder.name, execute: ping.execute});
 
+import articles from './commands/articles';
+deployable.push(articles.builder.toJSON());
+commands.push({name: articles.builder.name, execute: articles.execute});
+
+
+import pages from './commands/pages';
+deployable.push(pages.builder.toJSON());
+commands.push({name: pages.builder.name, execute: pages.execute});
+
 import avatar from './commands/avatar';
 deployable.push(avatar.builder.toJSON());
 commands.push({name: avatar.builder.name, execute: avatar.execute});
