@@ -5,6 +5,7 @@ export interface PagesDTO  {
   group: mongoose.Types.ObjectId;
   author: mongoose.Types.ObjectId;
   name?: string;
+  order?: number;
   link?: string;
   markdown?: string;
   icon?: string;
@@ -30,6 +31,11 @@ const pagesSchema: Schema<PagesDBO> = new Schema({
     type: String,
     unique: true,
     required: true
+  },
+  order: {
+    type: Number,
+    unique: true,
+    required: true,
   },
   link: {
     type: String,

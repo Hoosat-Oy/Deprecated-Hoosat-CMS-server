@@ -32,10 +32,12 @@ export interface PageResultDTO {
  * @returns {Promise<PageResultDTO>} - A promise that resolves to PageResultDTO
  */
 export const createPage = async (author: AccountsDTO, group: GroupsDTO, data: PagesDTO): Promise<PageResultDTO> => {
+  const pagesCount = await pagesSchema.find({ domain: data.domain }).countDocuments({}).exec();
   const page = new pagesSchema({
     group: group._id,
     author: author._id,
     name: data.name,
+    order: pagesCount + 1,
     link: data.link,
     markdown: data.markdown,
     icon: data.icon,
@@ -43,9 +45,7 @@ export const createPage = async (author: AccountsDTO, group: GroupsDTO, data: Pa
     createdAt: Date.now(),
     updatedAt: Date.now(),
   });
-
   const savedPage = await page.save();
-
   if (savedPage) {
     return { result: "success", message: "Page has been saved.", page: savedPage };
   } else {
@@ -57,7 +57,7 @@ export const createPage = async (author: AccountsDTO, group: GroupsDTO, data: Pa
  * Updates page.
  * @function
  * @async
- * @param {PagesDTO} id - The data that is to be updated.
+ * @param {PagesDTO} data - The data that is to be updated.
  * @returns {Promise<PageResultDTO>} - A promise that resolves to PageResultDTO
  */
 export const updatePage = async (data: PagesDTO): Promise<PageResultDTO> => {
@@ -67,6 +67,7 @@ export const updatePage = async (data: PagesDTO): Promise<PageResultDTO> => {
       {
         name: data.name,
         link: data.link,
+        order: data.order,
         markdown: data.markdown,
         icon: data.icon,
         domain: data.domain,
@@ -143,7 +144,7 @@ export const getPagesByDomain = async (domain: string): Promise<PagesResultDTO> 
   if (domain === undefined) {
     throw new Error("Domain is empty.");
   }
-  const pages = await pagesSchema.find({ domain: domain }).exec();
+  const pages = await pagesSchema.find({ domain: domain }).sort({ order: 1 }).exec();
   if (pages) {
     return { result: "success", message: "Pages found.", pages: pages };
   } else {
@@ -162,7 +163,7 @@ export const getPagesByGroup = async (group: string): Promise<PagesResultDTO> =>
   if (group === undefined) {
     throw new Error("Group is empty.");
   }
-  const pages = await pagesSchema.find({ group: group }).exec();
+  const pages = await pagesSchema.find({ group: group }).sort({ order: 1 }).exec();
   if (pages) {
     return { result: "success", message: "Pages found.", pages: pages };
   } else {
@@ -181,7 +182,7 @@ export const getPagesByAuthor = async (author: string): Promise<PagesResultDTO> 
   if (author === undefined) {
     throw new Error("Author is empty.");
   }
-  const pages = await pagesSchema.find({ author: author }).exec();
+  const pages = await pagesSchema.find({ author: author }).sort({ order: 1 }).exec();
   if (pages) {
     return { result: "success", message: "Pages found.", pages: pages };
   } else {
