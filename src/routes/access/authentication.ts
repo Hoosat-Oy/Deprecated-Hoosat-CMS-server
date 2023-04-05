@@ -2,8 +2,8 @@ import express from "express";
 
 
 import { OAuth2Client } from "google-auth-library";
-import { authenticate, confirmToken, googleAuthenticate } from "../lib/sessions";
-import { activateAccount, createAccount, sendActivationLink } from "../lib/accounts";
+import { authenticate, confirmToken, googleAuthenticate } from "../../lib/access/sessions";
+import { activateAccount, createAccount, sendActivationLink } from "../../lib/access/accounts";
 
 /**
  * 

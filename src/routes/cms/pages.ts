@@ -25,9 +25,9 @@
  */
 
 import express from "express";
-import { confirmPermission, getGroup } from "../lib/groups";
-import { createPage, deletePage, getPage, getPageByLink, getPagesByDomain, updatePage } from "../lib/pages";
-import { confirmToken } from "../lib/sessions";
+import { confirmPermission, getGroup } from "../../lib/access/groups";
+import { createPage, deletePage, getPage, getPageByLink, getPagesByDomain, updatePage } from "../../lib/cms/pages";
+import { confirmToken } from "../../lib/access/sessions";
 
 
 const router = express.Router();

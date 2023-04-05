@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { getPublicArticlesByDomain } from '../../articles';
+import { getPublicArticlesByDomain } from '../../cms/articles';
 
 export default {
   builder: new SlashCommandBuilder()

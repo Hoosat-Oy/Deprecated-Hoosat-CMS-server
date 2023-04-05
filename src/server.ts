@@ -60,7 +60,7 @@ app.use(cors({ origin : async (origin: any, callback: (arg0: Error | null, arg1:
 import { EnableRoutes } from "./routes/";
 EnableRoutes(app);
 
-import { loginDiscord } from "./lib/Discord/discord";
+import { loginDiscord } from "./lib/discord/discord";
 if(process.env.DISCORD_ENABLED === "true") {
   const client = loginDiscord();
 }

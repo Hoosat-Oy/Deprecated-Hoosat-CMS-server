@@ -1,13 +1,13 @@
 "use strict";
 
-import { AccountsDTO } from "./schemas/accountsSchema";
-import { GroupsDTO } from "./schemas/groupsSchema";
+import { AccountsDTO } from "../schemas/accountsSchema";
+import { GroupsDTO } from "../schemas/groupsSchema";
+import pagesSchema, { PagesDTO } from "../schemas/pagesSchema";
+
 /**
  * @author: Toni Lukkaroinen
  * @license: MIT
  */
-
-import pagesSchema, { PagesDTO } from "./schemas/pagesSchema";
 
 
 export interface PagesResultDTO {

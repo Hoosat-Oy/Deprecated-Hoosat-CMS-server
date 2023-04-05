@@ -3,7 +3,7 @@ import express from 'express';
 import { 
   confirmGroupPermission, 
   confirmPermission 
-} from '../lib/groups';
+} from '../../lib/access/groups';
 import { 
   createArticle, 
   deleteArticle, 
@@ -12,8 +12,8 @@ import {
   getPublicArticles, 
   getPublicArticlesByDomain, 
   updateArticle 
-} from '../lib/articles';
-import { confirmToken } from '../lib/sessions';
+} from '../../lib/cms/articles';
+import { confirmToken } from '../../lib/access/sessions';
 
 
 const router = express.Router();

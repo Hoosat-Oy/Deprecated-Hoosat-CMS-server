@@ -1,7 +1,7 @@
 import { getGroupByMember } from "./groups";
-import { AccountsDTO } from "./schemas/accountsSchema";
-import { GroupsDTO } from "./schemas/groupsSchema";
-import membersSchema, { MembersDTO } from "./schemas/membersSchema";
+import { AccountsDTO } from "../schemas/accountsSchema";
+import { GroupsDTO } from "../schemas/groupsSchema";
+import membersSchema, { MembersDTO } from "../schemas/membersSchema";
 
 export interface MemberResultDTO {
   result: string,

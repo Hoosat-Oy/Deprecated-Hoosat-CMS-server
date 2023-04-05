@@ -7,9 +7,9 @@ import {
   getGroup, 
   getGroups, 
   updateGroup
-} from '../lib/groups';
-import { getMembersByGroup } from '../lib/members';
-import { confirmToken } from '../lib/sessions';
+} from '../../lib/access/groups';
+import { getMembersByGroup } from '../../lib/access/members';
+import { confirmToken } from '../../lib/access/sessions';
 
 /**
  * Groups

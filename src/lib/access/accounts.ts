@@ -1,6 +1,6 @@
-import Cryptology from "./common/Cryptology";
-import Mailer from "./common/Mailer";
-import accountsSchema, { AccountsDTO } from "./schemas/accountsSchema"
+import Cryptology from "../common/Cryptology";
+import Mailer from "../common/Mailer";
+import accountsSchema, { AccountsDTO } from "../schemas/accountsSchema"
 
 interface AccountResultDTO {
   result: string,

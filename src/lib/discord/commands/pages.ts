@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { getPagesByDomain } from '../../pages';
+import { getPagesByDomain } from '../../cms/pages'
 
 export default {
   builder: new SlashCommandBuilder()

@@ -3,11 +3,12 @@ import { Router } from 'express-serve-static-core';
 import path from 'path';
 import dotenv from "dotenv";
 import multer from '../lib/common/Multer';
-import authentication from "./authentication";
-import groups from "./groups";
-import members from "./members";
-import articles from "./articles";
-import pages from './pages';
+import authentication from "./access/authentication";
+import groups from "./access/groups";
+import members from "./access/members";
+import articles from "./cms/articles";
+import pages from './cms/pages';
+import contactForm from './common/contactForm';
 
 export const EnableRoutes = (app: {
   get(arg0: string, arg1: (req: any, res: any) => void): unknown; 
@@ -37,6 +38,10 @@ export const EnableRoutes = (app: {
   if(process.env.PAGES_ENABLED == "true") {
     app.use("/api", pages.router);
     console.log(`PAGES_ENABLED == ${process.env.PAGES_ENABLED}`);
+  }
+  if(process.env.CONTACT_FORM_ENABLED == "true") {
+    app.use("/api", contactForm.router);
+    console.log(`CONTACT_FORM_ENABLED == ${process.env.CONTACT_FORM_ENABLED}`);
   }
     // Catch all other routes, serve client build if it exists.
   app.get('*', (req, res) => {

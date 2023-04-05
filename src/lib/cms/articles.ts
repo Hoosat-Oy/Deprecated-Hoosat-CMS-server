@@ -1,7 +1,7 @@
 
-import { AccountsDTO } from "./schemas/accountsSchema";
-import articlesSchema, { ArticlesDTO } from "./schemas/articlesSchema";
-import { GroupsDTO } from "./schemas/groupsSchema";
+import { AccountsDTO } from "../schemas/accountsSchema";
+import articlesSchema, { ArticlesDTO } from "../schemas/articlesSchema";
+import { GroupsDTO } from "../schemas/groupsSchema";
 
 
 interface ArticleResultDTO {

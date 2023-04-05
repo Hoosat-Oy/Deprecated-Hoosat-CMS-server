@@ -1,9 +1,9 @@
 import express from 'express';
 
-import { confirmGroupPermission, getGroup } from '../lib/groups';
-import { addMember, deleteMember, getMembersByGroup, updateMember } from '../lib/members';
-import { getAccount } from '../lib/accounts';
-import { confirmToken } from '../lib/sessions';
+import { confirmGroupPermission, getGroup } from '../../lib/access/groups';
+import { addMember, deleteMember, getMembersByGroup, updateMember } from '../../lib/access/members';
+import { getAccount } from '../../lib/access/accounts';
+import { confirmToken } from '../../lib/access/sessions';
 
 /**
  * Members
