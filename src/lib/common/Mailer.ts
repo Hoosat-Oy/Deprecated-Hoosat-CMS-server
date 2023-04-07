@@ -11,7 +11,7 @@ const isValidSubject = (subject: string): boolean => {
 }
 
 const isValidText = (text: string): boolean => {
-  return text.length >= 10 && text.length <= 10000;
+  return text.length >= 3 && text.length <= 10000;
 }
 
 interface MailOptions {
@@ -21,13 +21,30 @@ interface MailOptions {
   text: string;
 }
 
-const sendMail = async (from: string, to: string, subject: string, text: string): Promise<any> => {
-  let options: MailOptions = {
-    from: from,
-    to: to,
-    subject: subject,
-    text: text,
-  };
+const sendMail = async(from: string, to: string, subject: string, text: string): Promise<any> => {
+  const type = process.env.EMAIL_SERVER_TYPE;
+  if(process.env.EMAIL_SERVER_TYPE === undefined) {
+    console.log("EMAIL_SERVER_TYPE has not been set in environment");
+    return;
+  }
+  if(type === "service") {
+    ServiceSendMail({
+      from: from,
+      to: to,
+      subject: subject,
+      text: text,
+    });
+  } else if(type === "smtp") {
+    SMTPSendMail({
+      from: from,
+      to: to,
+      subject: subject,
+      text: text,
+    });
+  }
+}
+
+const ServiceSendMail = async (options: MailOptions): Promise<any> => {
   if(!options.to.trim()) throw new Error('Email address is required');
   if(!options.subject.trim()) throw new Error('Subject is required');
   if(!options.text.trim()) throw new Error('Text is required');
@@ -41,10 +58,10 @@ const sendMail = async (from: string, to: string, subject: string, text: string)
     throw new Error(`Text is too short or long for email.`);
   }
   let transporter = nodemailer.createTransport({
-    service: process.env.SERVICE,
+    service: process.env.EMAIL_SERVICE,
     auth: {
-      user: process.env.USERNAME,
-      pass: process.env.PASSWORD,
+      user: process.env.EMAIL_SERVICE_USERNAME,
+      pass: process.env.EMAIL_SERVICE_PASSWORD,
     },
   });
   try {
@@ -72,7 +89,6 @@ const SMTPSendMail = async (options: MailOptions): Promise<any> => {
     let transporter = nodemailer.createTransport({
       host: process.env.SMTP_SERVER || 'mail.shellit.org',
       port: parseInt(process.env.SMTP_PORT || '587', 10),
-      secure: false,
       auth: {
         user: process.env.SMTP_USERNAME,
         pass: process.env.SMTP_PASSWORD,
@@ -86,6 +102,7 @@ const SMTPSendMail = async (options: MailOptions): Promise<any> => {
 }
 
 export default { 
-  sendMail, 
+  sendMail,
+  ServiceSendMail, 
   SMTPSendMail 
 };

@@ -7,18 +7,22 @@ export const rateLimitByIP = async (ip: string | string[] | undefined, rateInMil
   if(Array.isArray(ip) === true) {
     return false;
   }
-  const filepath = `/tmp/${ip}`;
-  const stats = await stat(filepath);
-  if(stats.isFile() === true) {
-    const diffInMillis = Math.floor(Date.now() - stats.atimeMs);
-    if(diffInMillis > rateInMillis) {
-      await rm(filepath);
-      await appendFile(filepath, "API rate limit file for the IP");
+  try {
+    const filepath = `/tmp/${ip}`;
+    const stats = await stat(filepath);
+    if(stats.isFile() === true) {
+      const diffInMillis = Math.floor(Date.now() - stats.atimeMs);
+      if(diffInMillis > rateInMillis) {
+        await rm(filepath);
+        await appendFile(filepath, "API rate limit file for the IP");
+        return true;
+      }
+    } else {
+      const file = await appendFile(filepath, "API rate limit file for the IP");
       return true;
     }
-  } else {
-    const file = await appendFile(filepath, "API rate limit file for the IP");
-    return true;
+    return false;
+  } catch(error) {
+    return true;  
   }
-  return false;
 } 
