@@ -57,7 +57,7 @@ app.use(cors({ origin : async (origin: any, callback: (arg0: Error | null, arg1:
 }, credentials: true }));
 
 
-import { EnableRoutes } from "./routes/";
+import { EnableRoutes } from "./routes";
 EnableRoutes(app);
 
 import { loginDiscord } from "./lib/discord/discord";
