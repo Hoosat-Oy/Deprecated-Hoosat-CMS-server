@@ -34,7 +34,6 @@ const pagesSchema: Schema<PagesDBO> = new Schema({
   },
   order: {
     type: Number,
-    unique: true,
     required: true,
   },
   link: {
