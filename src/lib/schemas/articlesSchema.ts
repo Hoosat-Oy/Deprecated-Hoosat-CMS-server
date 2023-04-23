@@ -32,7 +32,6 @@ const articlesSchema : Schema<ArticlesDBO> = new Schema({
   },
   markdown: {
     type: String,
-    required: true,
   },
   read: {
     type: Number,

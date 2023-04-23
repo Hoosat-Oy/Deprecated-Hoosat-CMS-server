@@ -8,6 +8,7 @@ import {
   createArticle, 
   deleteArticle, 
   getArticle, 
+  getArticlesByDomain, 
   getArticlesByGroup, 
   getPublicArticles, 
   getPublicArticlesByDomain, 
@@ -182,7 +183,7 @@ router.get("/articles/group/:id", async (req, res) => {
  */
 router.get("/articles/domain/:id", async (req, res) => {
   try {
-    return res.status(200).json(await getPublicArticlesByDomain(req.params.id));
+    return res.status(200).json(await getArticlesByDomain(req.params.id));
   } catch (error) {
     console.log(error);
     if (typeof error === "object" && error !== null) {

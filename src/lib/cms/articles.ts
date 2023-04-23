@@ -5,13 +5,13 @@ import { GroupsDTO } from "../schemas/groupsSchema";
 
 
 interface ArticleResultDTO {
-  type: string,
+  result: string,
   message: string
   article: ArticlesDTO
 }
 
 interface ArticlesResultDTO {
-  type: string,
+  result: string,
   message: string
   articles: ArticlesDTO[]
 }
@@ -43,7 +43,7 @@ export const createArticle = async (
   });
   const savedArticle = await article.save();
   if(savedArticle) {
-    return { type: "success", message: "Article has been saved.", article: savedArticle };
+    return { result: "success", message: "Article has been saved.", article: savedArticle };
   } else {
     throw new Error("Could not save article.")
   }
@@ -70,7 +70,7 @@ export const updateArticle = async (
     updatedAt: Date.now(),
   }).exec();
   if(updatedArticle) {
-    return { type: "success", message: "Article has been updated.", article: updatedArticle };
+    return { result: "success", message: "Article has been updated.", article: updatedArticle };
   } else {
     throw new Error("Could not update article.")
   }
@@ -88,7 +88,7 @@ export const deleteArticle = async (
 ): Promise<ArticleResultDTO> => {
   const deletedArticle = await articlesSchema.findOneAndDelete({ _id: id}).exec();
   if(deletedArticle) {
-    return { type: "success", message: "Article has been deleted.", article: deletedArticle };
+    return { result: "success", message: "Article has been deleted.", article: deletedArticle };
   } else {
     throw new Error("Could not delete article.")
   }
@@ -104,7 +104,7 @@ export const getPublicArticles = async (
 ): Promise<ArticlesResultDTO> => {
   const articles = await articlesSchema.find({ public: true }).exec();
   if(articles) {
-    return { type: "success", message: "Articles found.", articles: articles };
+    return { result: "success", message: "Articles found.", articles: articles };
   } else {
     throw new Error("Could not find articles.")
   }
@@ -123,7 +123,7 @@ export const getPublicArticlesByDomain = async (
 ): Promise<ArticlesResultDTO> => {
   const articles = await articlesSchema.find({ public: true, domain: domain }).exec();
   if(articles) {
-    return { type: "success", message: "Articles found.", articles: articles };
+    return { result: "success", message: "Articles found.", articles: articles };
   } else {
     throw new Error("Could not find articles.")
   }
@@ -141,7 +141,7 @@ export const getPublicArticlesByGroup = async (
 ): Promise<ArticlesResultDTO> => {
   const articles = await articlesSchema.find({ public: true, group: group._id }).exec();
   if(articles) {
-    return { type: "success", message: "Articles found.", articles: articles };
+    return { result: "success", message: "Articles found.", articles: articles };
   } else {
     throw new Error("Could not find articles.")
   }
@@ -159,7 +159,7 @@ export const getPublicArticlesByAuthor = async (
 ): Promise<ArticlesResultDTO> => {
   const articles = await articlesSchema.find({ public: true, author: author._id }).exec();
   if(articles) {
-    return { type: "success", message: "Articles found.", articles: articles };
+    return { result: "success", message: "Articles found.", articles: articles };
   } else {
     throw new Error("Could not find articles.")
   }
@@ -177,7 +177,7 @@ export const getArticle = async (
 ): Promise<ArticleResultDTO> => {
   const article = await articlesSchema.findOne({ _id: id }).exec();
   if(article) {
-    return { type: "success", message: "Articles found.", article: article };
+    return { result: "success", message: "Articles found.", article: article };
   } else {
     throw new Error("Could not find articles.")
   }
@@ -195,7 +195,25 @@ export const getArticlesByGroup = async (
 ): Promise<ArticlesResultDTO> => {
   const articles = await articlesSchema.find({ group: group._id });
   if(articles) {
-    return { type: "success", message: "Articles found.", articles: articles };
+    return { result: "success", message: "Articles found.", articles: articles };
+  } else {
+    throw new Error("Could not find articles.")
+  }
+}
+
+/**
+ * Get article by domain.
+ * @function
+ * @async
+ * @param {string} domain - The domain identifier of the article to be searched.
+ * @returns {Promise<ArticlesResultDTO>} - A promise that resolves to null or the article.
+ */
+export const getArticlesByDomain = async (
+  domain: string
+): Promise<ArticlesResultDTO> => {
+  const articles = await articlesSchema.find({ domain: domain });
+  if(articles) {
+    return { result: "success", message: "Articles found.", articles: articles };
   } else {
     throw new Error("Could not find articles.")
   }
