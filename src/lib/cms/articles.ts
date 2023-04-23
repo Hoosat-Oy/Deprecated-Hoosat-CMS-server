@@ -54,8 +54,7 @@ export const createArticle = async (
  * Updates article.
  * @function
  * @async
- * @param {string} id - The identifier of the article to be updated.
- * @param {ArticleProps} data - The data that is to be updated.
+ * @param {ArticlesDTO} data - The data that is to be updated.
  * @returns {Promise<ArticleResultDTO>} - A promise that resolves to null or the updated article indicating wheter updating the article worked or not.
  */
 export const updateArticle = async (
