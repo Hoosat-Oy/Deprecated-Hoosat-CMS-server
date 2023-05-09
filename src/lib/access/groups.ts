@@ -1,4 +1,5 @@
 
+import mongoose from "mongoose";
 import { AccountsDTO } from "../schemas/accountsSchema";
 import groupsSchema, { GroupsDTO } from "../schemas/groupsSchema";
 import membersSchema, { MembersDTO } from "../schemas/membersSchema";
@@ -117,7 +118,7 @@ export const getGroups = async (): Promise<GroupsResultDTO> => {
  * @param {string} id - The id of the group to retrieve
  * @returns {Promise<GroupResultDTO>} - A promise that resolves to the group with the given id, or null if not found
  */
-export const getGroup = async (id: string): Promise<GroupResultDTO> =>  {
+export const getGroup = async (id: mongoose.Types.ObjectId): Promise<GroupResultDTO> =>  {
   const group = await groupsSchema.findOne({ _id: id}).exec();
   if(group === null) {
     throw new Error("Could not update group.");

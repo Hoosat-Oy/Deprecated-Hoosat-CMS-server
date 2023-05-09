@@ -28,6 +28,7 @@ import express from "express";
 import { confirmPermission, getGroup } from "../../lib/access/groups";
 import { createPage, deletePage, getPage, getPageByLink, getPagesByDomain, updatePage } from "../../lib/cms/pages";
 import { confirmToken } from "../../lib/access/sessions";
+import { ErrorHandler } from "../../lib/common/ErrorHandler";
 
 
 const router = express.Router();
@@ -50,12 +51,7 @@ router.post("/pages/", async (req, res) => {
     const { permission, group } = await confirmPermission(account, "WRITE");
     return res.status(200).json(await createPage(account, group, req.body.page));
   } catch (error) {
-    console.log(error);
-    if (typeof error === "object" && error !== null) {
-      return res.status(500).json({ result: "error", message: error.toString() });
-    } else {
-      return res.status(500).json({ result: "error", message: "Unknown error" });
-    }
+    return ErrorHandler(res, error);
   }
 });
 
@@ -76,12 +72,7 @@ router.put("/pages/", async (req, res) => {
     const { permission, group } = await confirmPermission(account, "WRITE");
     return res.status(200).json(await updatePage(req.body.page));
   } catch (error) {
-    console.log(error);
-    if (typeof error === "object" && error !== null) {
-      return res.status(500).json({ result: "error", message: error.toString() });
-    } else {
-      return res.status(500).json({ result: "error", message: "Unknown error" });
-    }
+    return ErrorHandler(res, error);
   }
 });
 
@@ -102,12 +93,7 @@ router.delete("/pages/:id", async (req, res) => {
     const { permission, group } = await confirmPermission(account, "WRITE");
     return res.status(200).json(await deletePage(req.params.id));
   } catch (error) {
-    console.log(error);
-    if (typeof error === "object" && error !== null) {
-      return res.status(500).json({ result: "error", message: error.toString() });
-    } else {
-      return res.status(500).json({ result: "error", message: "Unknown error" });
-    }
+    return ErrorHandler(res, error);
   }
 });
 
@@ -128,12 +114,7 @@ router.get("/pages/link/:link", async (req, res) => {
     console.log(req.params.link);
     return res.status(200).json(await getPageByLink(req.params.link));
   } catch (error) {
-    console.log(error);
-    if (typeof error === "object" && error !== null) {
-      return res.status(500).json({ result: "error", message: error.toString() });
-    } else {
-      return res.status(500).json({ result: "error", message: "Unknown error" });
-    }
+    return ErrorHandler(res, error);
   }
 });
 
@@ -154,12 +135,7 @@ router.get("/pages/domain/:domain", async (req, res) => {
     }
     return res.status(200).json(await getPagesByDomain(req.params.domain));
   } catch (error) {
-    console.log(error);
-    if (typeof error === "object" && error !== null) {
-      return res.status(500).json({ result: "error", message: error.toString() });
-    } else {
-      return res.status(500).json({ result: "error", message: "Unknown error" });
-    }
+    return ErrorHandler(res, error);
   }
 });
 
@@ -180,12 +156,7 @@ router.get("/pages/author/:author", async (req, res) => {
     }
     return res.status(200).json(await getPagesByDomain(req.params.author));
   } catch (error) {
-    console.log(error);
-    if (typeof error === "object" && error !== null) {
-      return res.status(500).json({ result: "error", message: error.toString() });
-    } else {
-      return res.status(500).json({ result: "error", message: "Unknown error" });
-    }
+    return ErrorHandler(res, error);
   }
 });
 
@@ -207,12 +178,7 @@ router.get("/pages/group/:group", async (req, res) => {
     }
     return res.status(200).json(await getPagesByDomain(req.params.group));
   } catch (error) {
-    console.log(error);
-    if (typeof error === "object" && error !== null) {
-      return res.status(500).json({ result: "error", message: error.toString() });
-    } else {
-      return res.status(500).json({ result: "error", message: "Unknown error" });
-    }
+    return ErrorHandler(res, error);
   }
 });
 
@@ -230,12 +196,7 @@ router.get("/pages/:id", async (req, res) => {
   try {
     return res.status(200).json(await getPage(req.params.id));
   } catch (error) {
-    console.log(error);
-    if (typeof error === "object" && error !== null) {
-      return res.status(500).json({ result: "error", message: error.toString() });
-    } else {
-      return res.status(500).json({ result: "error", message: "Unknown error" });
-    }
+    return ErrorHandler(res, error);
   }
 });
 

@@ -4,6 +4,7 @@ import { confirmGroupPermission, getGroup } from '../../lib/access/groups';
 import { addMember, deleteMember, getMembersByGroup, updateMember } from '../../lib/access/members';
 import { getAccount } from '../../lib/access/accounts';
 import { confirmToken } from '../../lib/access/sessions';
+import mongoose from 'mongoose';
 
 /**
  * Members
@@ -109,7 +110,8 @@ router.delete("/members/", async (req, res) => {
 router.get("/members/group/:id", async (req, res) => {
   try {
     const { session, account } = await confirmToken(req.headers.authorization);
-    const { group } = await getGroup(req.params.id);
+    const groupId = new mongoose.Types.ObjectId(req.params.id);
+    const { group } = await getGroup(groupId);
     const { permission } = await confirmGroupPermission("READ", group, account);
     return res.status(200).json(getMembersByGroup(group));
   } catch (error) {

@@ -12,9 +12,12 @@ import {
   getArticlesByGroup, 
   getPublicArticles, 
   getPublicArticlesByDomain, 
+  publishArticle, 
+  unpublishArticle, 
   updateArticle 
 } from '../../lib/cms/articles';
 import { confirmToken } from '../../lib/access/sessions';
+import { ErrorHandler } from '../../lib/common/ErrorHandler';
 
 
 const router = express.Router();
@@ -45,12 +48,7 @@ router.post("/articles/", async (req, res) => {
     const { permission, group } = await confirmPermission(account, "WRITE");
     return res.status(200).json(await createArticle(account, group, req.body.article));
   } catch (error) {
-    console.log(error);
-    if (typeof error === "object" && error !== null) {
-      return res.status(500).json({ result: "error", message: error.toString() });
-    } else {
-      return res.status(500).json({ result: "error", message: "Unknown error" });
-    }
+    return ErrorHandler(res, error);
   }
 });
 
@@ -69,12 +67,45 @@ router.put("/articles/", async (req, res) => {
     const { permission, group } = await confirmPermission(account, "WRITE");
     return res.status(200).json(await updateArticle(req.body.article));
   } catch (error) {
-    console.log(error);
-    if (typeof error === "object" && error !== null) {
-      return res.status(500).json({ result: "error", message: error.toString() });
-    } else {
-      return res.status(500).json({ result: "error", message: "Unknown error" });
-    }
+    return ErrorHandler(res, error);
+  }
+});
+
+/**
+ * Handles HTTP Put requests for publishing article.
+ * @function
+ * @async
+ * @param {object} req - The HTTP rquest object.
+ * @param {object} res - The HTTP response object.
+ * @returns {Object} The HTTP with status code and JSON object with result, message and article properties.
+ * @throws {Object} The HTTP response with status code and error message.
+ */
+router.put("/articles/publish", async (req, res) => {
+  try {
+    const { session, account } = await confirmToken(req.headers.authorization);
+    const { permission, group } = await confirmPermission(account, "WRITE");
+    return res.status(200).json(await publishArticle(req.body.article));
+  } catch (error) {
+    return ErrorHandler(res, error);
+  }
+});
+
+/**
+ * Handles HTTP Put requests for unpublishing article.
+ * @function
+ * @async
+ * @param {object} req - The HTTP rquest object.
+ * @param {object} res - The HTTP response object.
+ * @returns {Object} The HTTP with status code and JSON object with result, message and article properties.
+ * @throws {Object} The HTTP response with status code and error message.
+ */
+router.put("/articles/unpublish", async (req, res) => {
+  try {
+    const { session, account } = await confirmToken(req.headers.authorization);
+    const { permission, group } = await confirmPermission(account, "WRITE");
+    return res.status(200).json(await unpublishArticle(req.body.article));
+  } catch (error) {
+    return ErrorHandler(res, error);
   }
 });
 
@@ -93,12 +124,7 @@ router.delete("/articles/:id", async (req, res) => {
     const { permission, group } = await confirmPermission(account, "DELETE");
     return res.status(200).json(await deleteArticle(req.params.id));
   } catch (error) {
-    console.log(error);
-    if (typeof error === "object" && error !== null) {
-      return res.status(500).json({ result: "error", message: error.toString() });
-    } else {
-      return res.status(500).json({ result: "error", message: "Unknown error" });
-    }
+    return ErrorHandler(res, error);
   }
 });
 
@@ -115,12 +141,7 @@ router.get("/articles/", async (req, res) => {
   try {
     return res.status(200).json(await getPublicArticles());
   } catch (error) {
-    console.log(error);
-    if (typeof error === "object" && error !== null) {
-      return res.status(500).json({ result: "error", message: error.toString() });
-    } else {
-      return res.status(500).json({ result: "error", message: "Unknown error" });
-    }
+    return ErrorHandler(res, error);
   }
 });
 
@@ -137,12 +158,7 @@ router.get("/article/:id", async (req, res) => {
   try {
     return res.status(200).json(await getArticle(req.params.id));
   } catch (error) {
-    console.log(error);
-    if (typeof error === "object" && error !== null) {
-      return res.status(500).json({ result: "error", message: error.toString() });
-    } else {
-      return res.status(500).json({ result: "error", message: "Unknown error" });
-    }
+    return ErrorHandler(res, error);
   }
 });
 
@@ -159,16 +175,10 @@ router.get("/articles/group/:id", async (req, res) => {
   try {
     const { session, account } = await confirmToken(req.headers.authorization);
     const groupId = new mongoose.Types.ObjectId(req.params.id);
-
-    const { permission, group } = await confirmGroupPermission("READ", { _id : groupId },  account, );
+    const { permission, group } = await confirmGroupPermission("READ", { _id : groupId },  account);
     return res.status(200).json(await getArticlesByGroup(group));
   } catch (error) {
-    console.log(error);
-    if (typeof error === "object" && error !== null) {
-      return res.status(500).json({ result: "error", message: error.toString() });
-    } else {
-      return res.status(500).json({ result: "error", message: "Unknown error" });
-    }
+    return ErrorHandler(res, error);
   }
 });
 
@@ -185,12 +195,7 @@ router.get("/articles/domain/:id", async (req, res) => {
   try {
     return res.status(200).json(await getArticlesByDomain(req.params.id));
   } catch (error) {
-    console.log(error);
-    if (typeof error === "object" && error !== null) {
-      return res.status(500).json({ result: "error", message: error.toString() });
-    } else {
-      return res.status(500).json({ result: "error", message: "Unknown error" });
-    }
+    return ErrorHandler(res, error);
   }
 });
 

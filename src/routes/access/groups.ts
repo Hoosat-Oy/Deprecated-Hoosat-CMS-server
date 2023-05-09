@@ -10,6 +10,7 @@ import {
 } from '../../lib/access/groups';
 import { getMembersByGroup } from '../../lib/access/members';
 import { confirmToken } from '../../lib/access/sessions';
+import mongoose from 'mongoose';
 
 /**
  * Groups
@@ -119,7 +120,8 @@ router.get("/groups/", async (req, res) => {
 router.get("/group/:id", async (req, res) => {
   try {
     const { account } = await confirmToken(req.headers.authorization);
-    return res.status(200).json(await getGroup(req.params.id));
+    const groupId = new mongoose.Types.ObjectId(req.params.id);
+    return res.status(200).json(await getGroup(groupId));
   } catch (error) {
     console.log(error);
     return res.status(500).json({ result: "error", message: error });
@@ -138,7 +140,8 @@ router.get("/group/:id", async (req, res) => {
 router.delete("/group/:id", async (req, res) => {
   try {
     const { account } = await confirmToken(req.headers.authorization);
-    const {group} = await getGroup(req.params.id);
+    const groupId = new mongoose.Types.ObjectId(req.params.id);
+    const {group} = await getGroup(groupId);
     if(group === null) {
       throw new Error("Could not find group with the ID.");
     }    
@@ -165,7 +168,8 @@ router.delete("/group/:id", async (req, res) => {
 router.get("/group/:id/members", async (req, res) => {
   try {
     const { account } = await confirmToken(req.headers.authorization);
-    const { group } = await getGroup(req.params.id);
+    const groupId = new mongoose.Types.ObjectId(req.params.id);
+    const { group } = await getGroup(groupId);
     if(group === null) {
       throw new Error("Could not find group with the ID.");
     }

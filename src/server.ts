@@ -9,6 +9,7 @@ import { getOrigins } from "./lib/common/Origins";
 
 // Initialization of express, dotenv and respolve path
 const app = express();
+
 dotenv.config();
 
 // Port to listen on

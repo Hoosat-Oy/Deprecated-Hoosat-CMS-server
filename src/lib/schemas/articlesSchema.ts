@@ -11,6 +11,7 @@ export interface ArticlesDTO {
   publish?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  publishedAt?: Date;
 }
 
 interface ArticlesDBO extends ArticlesDTO, Document {
@@ -49,6 +50,10 @@ const articlesSchema : Schema<ArticlesDBO> = new Schema({
     default: Date.now
   },
   updatedAt: {
+    type: Date,
+    default: Date.now
+  },
+  publishedAt: {
     type: Date,
     default: Date.now
   }

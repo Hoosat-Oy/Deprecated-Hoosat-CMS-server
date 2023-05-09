@@ -10,6 +10,9 @@ import articles from "./cms/articles";
 import pages from './cms/pages';
 import contactForm from './common/contactForm';
 
+import React from 'react';
+import ReactDOMServer from 'react-dom/server';
+
 export const EnableRoutes = (app: {
   get(arg0: string, arg1: (req: any, res: any) => void): unknown; 
   use: (arg0: string, arg1: Router) => void; 
@@ -43,7 +46,8 @@ export const EnableRoutes = (app: {
     app.use("/api", contactForm.router);
     console.log(`CONTACT_FORM_ENABLED == ${process.env.CONTACT_FORM_ENABLED}`);
   }
-    // Catch all other routes, serve client build if it exists.
+  
+  // Catch all other routes, serve client build if it exists.
   app.get('*', (req, res) => {
     res.sendFile(path.join(dirname + '/../client/build/'));
   });

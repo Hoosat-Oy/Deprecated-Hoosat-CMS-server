@@ -1,4 +1,3 @@
-
 import { AccountsDTO } from "../schemas/accountsSchema";
 import articlesSchema, { ArticlesDTO } from "../schemas/articlesSchema";
 import { GroupsDTO } from "../schemas/groupsSchema";
@@ -40,6 +39,7 @@ export const createArticle = async (
     publish: data.publish,
     createdAt: Date.now(),
     updatedAt: Date.now(),
+    publishedAt: 0,
   });
   const savedArticle = await article.save();
   if(savedArticle) {
@@ -67,11 +67,49 @@ export const updateArticle = async (
     domain: data.domain,
     publish: data.publish,
     updatedAt: Date.now(),
-  }).exec();
+  }, { new: true }).exec();
   if(updatedArticle) {
     return { result: "success", message: "Article has been updated.", article: updatedArticle };
   } else {
     throw new Error("Could not update article.")
+  }
+}
+
+export const publishArticle = async (
+  data: ArticlesDTO,
+): Promise<ArticleResultDTO> => {
+  const updatedArticle = await articlesSchema.findOneAndUpdate({ _id: data._id }, {
+    header: data.header,
+    markdown: data.markdown,
+    read: data.read,
+    domain: data.domain,
+    publish: true,
+    updatedAt: Date.now(),
+    publishedAt: Date.now()
+  }, { new: true }).exec();
+  if(updatedArticle) {
+    return { result: "success", message: "Article has been published.", article: updatedArticle };
+  } else {
+    throw new Error("Could not publish article.")
+  }
+}
+
+export const unpublishArticle = async (
+  data: ArticlesDTO,
+): Promise<ArticleResultDTO> => {
+  const updatedArticle = await articlesSchema.findOneAndUpdate({ _id: data._id }, {
+    header: data.header,
+    markdown: data.markdown,
+    read: data.read,
+    domain: data.domain,
+    publish: false,
+    updatedAt: Date.now(),
+    publishedAt: 0
+  }, { new: true }).exec();
+  if(updatedArticle) {
+    return { result: "success", message: "Article has been unpublished.", article: updatedArticle };
+  } else {
+    throw new Error("Could not unpublish article.")
   }
 }
 
@@ -101,7 +139,7 @@ export const deleteArticle = async (
  */
 export const getPublicArticles = async (
 ): Promise<ArticlesResultDTO> => {
-  const articles = await articlesSchema.find({ public: true }).exec();
+  const articles = await articlesSchema.find({ public: true }).sort({ publishedAt: "desc" }).exec();
   if(articles) {
     return { result: "success", message: "Articles found.", articles: articles };
   } else {
@@ -120,7 +158,7 @@ export const getPublicArticles = async (
 export const getPublicArticlesByDomain = async (
   domain: string,
 ): Promise<ArticlesResultDTO> => {
-  const articles = await articlesSchema.find({ public: true, domain: domain }).exec();
+  const articles = await articlesSchema.find({ public: true, domain: domain }).sort({ publishedAt: "desc" }).exec();
   if(articles) {
     return { result: "success", message: "Articles found.", articles: articles };
   } else {
@@ -138,7 +176,7 @@ export const getPublicArticlesByDomain = async (
 export const getPublicArticlesByGroup = async (
   group: GroupsDTO,
 ): Promise<ArticlesResultDTO> => {
-  const articles = await articlesSchema.find({ public: true, group: group._id }).exec();
+  const articles = await articlesSchema.find({ public: true, group: group._id }).sort({ publishedAt: "desc" }).exec();
   if(articles) {
     return { result: "success", message: "Articles found.", articles: articles };
   } else {
@@ -156,7 +194,7 @@ export const getPublicArticlesByGroup = async (
 export const getPublicArticlesByAuthor = async (
   author: AccountsDTO,
 ): Promise<ArticlesResultDTO> => {
-  const articles = await articlesSchema.find({ public: true, author: author._id }).exec();
+  const articles = await articlesSchema.find({ public: true, author: author._id }).sort({ publishedAt: "desc" }).exec();
   if(articles) {
     return { result: "success", message: "Articles found.", articles: articles };
   } else {
@@ -192,7 +230,7 @@ export const getArticle = async (
 export const getArticlesByGroup = async (
   group: GroupsDTO
 ): Promise<ArticlesResultDTO> => {
-  const articles = await articlesSchema.find({ group: group._id });
+  const articles = await articlesSchema.find({ group: group._id }).sort({ publishedAt: "desc" }).exec();
   if(articles) {
     return { result: "success", message: "Articles found.", articles: articles };
   } else {
@@ -210,7 +248,7 @@ export const getArticlesByGroup = async (
 export const getArticlesByDomain = async (
   domain: string
 ): Promise<ArticlesResultDTO> => {
-  const articles = await articlesSchema.find({ domain: domain });
+  const articles = await articlesSchema.find({ domain: domain }).sort({ publishedAt: "desc" }).exec();
   if(articles) {
     return { result: "success", message: "Articles found.", articles: articles };
   } else {
@@ -223,14 +261,17 @@ export const getArticlesByDomain = async (
  * @function
  * @async
  * @param {AccountsDTO} group - The account identifier of the article to be searched.
- * @returns {Promise<Null | ArticlesDTO>} - A promise that resolves to null or the article.
+ * @returns {Promise<ArticlesDTO>} - A promise that resolves to null or the article.
  */
 export const getArticlesByAuthor = async (
   author: AccountsDTO
-): Promise<null | ArticlesDTO[]> => {
-  const articles = await articlesSchema.find({author: author._id});
+): Promise<ArticlesDTO[]> => {
+  const articles = await articlesSchema.find({author: author._id}).sort({ publishedAt: "desc" }).exec();
   if(articles) {
     return articles;
+  } else {
+    throw new Error("Could not find articles.");
   }
-  return null;
 }
+
+
