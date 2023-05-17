@@ -1,7 +1,6 @@
 // Import Multer route to /
 import { Router } from 'express-serve-static-core';
 import path from 'path';
-import dotenv from "dotenv";
 import multer from '../lib/common/Multer';
 import authentication from "./access/authentication";
 import groups from "./access/groups";
@@ -9,9 +8,6 @@ import members from "./access/members";
 import articles from "./cms/articles";
 import pages from './cms/pages';
 import contactForm from './common/contactForm';
-
-import React from 'react';
-import ReactDOMServer from 'react-dom/server';
 
 export const EnableRoutes = (app: {
   get(arg0: string, arg1: (req: any, res: any) => void): unknown; 

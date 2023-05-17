@@ -20,7 +20,6 @@ import articles from './commands/articles';
 deployable.push(articles.builder.toJSON());
 commands.push({name: articles.builder.name, execute: articles.execute});
 
-
 import pages from './commands/pages';
 deployable.push(pages.builder.toJSON());
 commands.push({name: pages.builder.name, execute: pages.execute});
